@@ -3,7 +3,8 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Fraunces", "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
+  /* Display: Cormorant Garamond — same editorial register as Herdia / Marea */
+  --font-display: "Cormorant Garamond", ui-serif, "Times New Roman", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   --color-ink-50: #f6f7fb;
@@ -47,22 +48,127 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Landing-only — Marea-inspired depth: navy void + warm gold + Lyra blue lines */
+/* Landing-only — darker premium void (Herdia-adjacent); motion lives in .landing-scroll-bg */
 body[data-page="landing"] {
-  background-color: #050b14;
-  background-image:
-    radial-gradient(ellipse 120% 80% at 28% 18%, #0e1f38 0%, transparent 58%),
-    radial-gradient(900px 520px at 92% 8%, rgba(91, 141, 239, 0.09), transparent 55%),
-    radial-gradient(800px 480px at 8% 85%, rgba(212, 165, 116, 0.07), transparent 60%),
-    radial-gradient(600px 400px at 50% 120%, rgba(10, 22, 40, 0.9), transparent 70%);
-  color: #e8e4d9;
-  /* Establish a stacking context so negative-z children render above body bg */
+  background-color: var(--marea-deep, #02040a);
+  background-image: radial-gradient(ellipse 140% 100% at 50% -20%, #0a1524 0%, var(--marea-deep, #02040a) 45%);
+  color: var(--marea-text, #c8c4bc);
   isolation: isolate;
+}
+
+/* Fixed stack: scroll-linked aurora + mesh (see --sy / --sp on :root) */
+.landing-scroll-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -12;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.scroll-bg-sheet {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.85;
+  will-change: transform;
+}
+
+/* Deep blue bloom — drifts down-right as you scroll */
+.scroll-bg-sheet--bloom {
+  width: min(120vw, 1400px);
+  height: min(120vw, 1400px);
+  top: -35%;
+  left: -25%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--marea-lyra, #4a6eb8) 22%, transparent) 0%,
+    transparent 62%
+  );
+  transform: translate3d(
+    calc(var(--sy, 0px) * 0.045),
+    calc(var(--sy, 0px) * 0.11),
+    0
+  )
+    scale(calc(1.05 + var(--sp, 0) * 0.12));
+}
+
+/* Secondary cooler pocket — opposite drift */
+.scroll-bg-sheet--cool {
+  width: min(95vw, 900px);
+  height: min(95vw, 900px);
+  bottom: -20%;
+  right: -18%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--marea-mid, #060d16) 55%, var(--marea-lyra, #4a6eb8) 12%) 0%,
+    transparent 65%
+  );
+  opacity: 0.65;
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.06),
+    calc(var(--sy, 0px) * -0.08),
+    0
+  )
+    rotate(calc(var(--sp, 0) * 14deg));
+}
+
+/* Muted gold whisper — slow vertical parallax */
+.scroll-bg-sheet--gold {
+  width: min(70vw, 720px);
+  height: min(70vw, 720px);
+  top: 38%;
+  left: 55%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--marea-gold, #b8926a) 18%, transparent) 0%,
+    transparent 68%
+  );
+  opacity: 0.5;
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.035),
+    calc(var(--sy, 0px) * 0.18),
+    0
+  )
+    scale(calc(0.92 + var(--sp, 0) * 0.1));
+}
+
+/* Film grain veil — tightens slightly with scroll depth */
+.scroll-bg-veil {
+  position: absolute;
+  inset: -5%;
+  background: radial-gradient(ellipse 80% 55% at 50% 0%, transparent 30%, var(--marea-deep, #02040a) 92%);
+  opacity: calc(0.35 + var(--sp, 0) * 0.28);
+  mix-blend-mode: multiply;
+}
+
+/* Subtle moving grid — Herdia “technical luxury” */
+.scroll-bg-grid {
+  position: absolute;
+  inset: -15%;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--marea-lyra, #4a6eb8) 10%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--marea-lyra, #4a6eb8) 10%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, black 15%, transparent 72%);
+  opacity: 0.22;
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.025),
+    calc(var(--sy, 0px) * -0.04),
+    0
+  );
 }
 
 body[data-page="landing"] ::selection {
   background: var(--marea-gold, #d4a574);
-  color: var(--marea-deep, #050b14);
+  color: var(--marea-deep, #02040a);
 }
 
 /* Ensure sections on the landing sit above the fixed scene layers */
@@ -100,6 +206,32 @@ body[data-page="app"]::before {
   mask-image: radial-gradient(ellipse at top, black 40%, transparent 80%);
 }
 
+body[data-page="landing"] .bg-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--marea-lyra, #4a6eb8) 14%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--marea-lyra, #4a6eb8) 14%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 52px 52px;
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 15%, black 25%, transparent 78%);
+}
+
+/* Combined vertical + horizontal parallax for section grids */
+.parallax-grid-drift {
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.04),
+    calc(var(--sy, 0px) * -0.1),
+    0
+  );
+  will-change: transform;
+}
+
 .card {
   background: color-mix(in oklab, var(--color-ink-800) 80%, black 20%);
   border: 1px solid color-mix(in oklab, var(--color-ink-600) 50%, transparent);
@@ -131,8 +263,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .font-display {
   font-family: var(--font-display);
-  font-feature-settings: "ss01" 1, "ss02" 1, "liga" 1, "calt" 1;
-  letter-spacing: -0.01em;
+  font-feature-settings: "liga" 1, "calt" 1;
+  letter-spacing: -0.02em;
 }
 
 .italic-display {
@@ -482,7 +614,7 @@ body[data-page="landing"] .depth-hud .dial {
     );
 }
 body[data-page="landing"] .depth-hud .dial::after {
-  background: var(--marea-deep, #050b14);
+  background: var(--marea-deep, #02040a);
 }
 .depth-hud .dial::after {
   content: "";
@@ -522,6 +654,24 @@ body[data-page="landing"] .depth-hud .dial::after {
   pointer-events: none;
 }
 
+body[data-page="landing"] .horizon {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--marea-lyra, #4a6eb8) 28%, transparent) 38%,
+    color-mix(in oklab, var(--marea-gold, #b8926a) 35%, transparent) 50%,
+    color-mix(in oklab, var(--marea-lyra, #4a6eb8) 28%, transparent) 62%,
+    transparent 100%
+  );
+  opacity: 0.55;
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.09),
+    calc(var(--sy, 0px) * -0.22),
+    0
+  )
+    scaleX(calc(0.96 + var(--sp, 0) * 0.08));
+}
+
 /* Orb helper */
 .orb {
   position: absolute;
@@ -558,7 +708,7 @@ body[data-page="landing"] .depth-hud .dial::after {
   letter-spacing: 0;
 }
 
-/* Page title — Fraunces light, editorial */
+/* Page title — Cormorant light, editorial */
 .page-title {
   font-family: var(--font-display);
   font-weight: 300;
@@ -1043,8 +1193,8 @@ body[data-page="landing"] .depth-hud .dial::after {
   /* Fade-to-transparent gradient masks text passing under the header */
   background: linear-gradient(
     to bottom,
-    color-mix(in oklab, var(--marea-mid, #0a1628) 92%, transparent) 0%,
-    color-mix(in oklab, var(--marea-mid, #0a1628) 78%, transparent) 55%,
+    color-mix(in oklab, var(--marea-deep, #02040a) 94%, transparent) 0%,
+    color-mix(in oklab, var(--marea-mid, #060d16) 82%, transparent) 50%,
     transparent 100%
   );
   backdrop-filter: blur(14px) saturate(1.1);
@@ -1109,7 +1259,7 @@ body[data-page="landing"] .depth-hud .dial::after {
   max-width: 36rem;
   padding: 1.25rem 0 1.25rem 1.5rem;
   border-left: 1px solid var(--marea-line, rgba(91, 141, 239, 0.18));
-  font-family: "Cormorant Garamond", var(--font-display);
+  font-family: var(--font-display);
   font-size: clamp(1.25rem, 2.8vw, 1.65rem);
   font-weight: 300;
   font-style: italic;
@@ -1161,15 +1311,15 @@ body[data-page="landing"] .italic-display {
   --color-dust:  #f2e8d0;   /* cream (use on inverted panels)                */
   --color-sky:   #7baac4;   /* dusty blue (info-state accent)                */
 
-  /* Herdia / Marea landing — deep sea + gold + Lyra blue                     */
-  --marea-deep: #050b14;
-  --marea-mid: #0a1628;
-  --marea-gold: #d4a574;
-  --marea-gold-soft: #e8c99a;
-  --marea-gold-glow: rgba(212, 165, 116, 0.35);
-  --marea-lyra: #5b8def;
-  --marea-line: rgba(91, 141, 239, 0.12);
-  --marea-text: #e8e4d9;
+  /* Herdia / Marea landing — darker premium void + restrained gold + steel blue */
+  --marea-deep: #02040a;
+  --marea-mid: #060d16;
+  --marea-gold: #b8926a;
+  --marea-gold-soft: #c9a882;
+  --marea-gold-glow: rgba(184, 146, 106, 0.2);
+  --marea-lyra: #4a6eb8;
+  --marea-line: rgba(74, 110, 184, 0.14);
+  --marea-text: #c8c4bc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1288,9 +1438,9 @@ body[data-page="landing"] .italic-display {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(60vw 40vw at 70% 40%, rgba(196, 151, 58, 0.12), transparent 60%),
-    radial-gradient(50vw 30vw at 20% 80%, rgba(168,  80, 48, 0.08), transparent 60%),
-    radial-gradient(55vw 42vw at 88% 24%, rgba(91, 141, 239, 0.06), transparent 58%);
+    radial-gradient(60vw 40vw at 70% 40%, color-mix(in oklab, var(--marea-gold, #b8926a) 10%, transparent), transparent 62%),
+    radial-gradient(50vw 30vw at 20% 80%, color-mix(in oklab, var(--marea-mid, #060d16) 40%, transparent), transparent 65%),
+    radial-gradient(55vw 42vw at 88% 24%, color-mix(in oklab, var(--marea-lyra, #4a6eb8) 8%, transparent), transparent 58%);
   z-index: -1;
 }
 
@@ -1345,5 +1495,17 @@ body[data-page="landing"] .italic-display {
     opacity: 1 !important;
     letter-spacing: inherit !important;
     text-shadow: none !important;
+  }
+
+  .scroll-bg-sheet,
+  .scroll-bg-grid,
+  .parallax-grid-drift {
+    transform: none !important;
+  }
+  .scroll-bg-veil {
+    opacity: 0.42 !important;
+  }
+  body[data-page="landing"] .horizon {
+    transform: none !important;
   }
 }

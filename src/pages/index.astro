@@ -26,10 +26,10 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap"
     />
   </head>
-  <body class="relative min-h-full overflow-x-hidden antialiased" data-page="landing">
+  <body class="relative min-h-full overflow-x-hidden antialiased font-light" data-page="landing">
     <!-- Progress rail -->
     <div class="progress-rail" id="progress-rail"><i id="progress-bar"></i></div>
 
@@ -47,20 +47,13 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
       </div>
     </div>
 
-    <!-- Global drifting background layers (warm editorial palette) -->
-    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      <div
-        class="orb parallax-drift"
-        style="top:-8%;left:-8%;width:42vw;height:42vw;background:radial-gradient(circle,rgba(196,151,58,0.22),transparent 65%)"
-      ></div>
-      <div
-        class="orb parallax-up-slow"
-        style="top:30%;right:-12%;width:46vw;height:46vw;background:radial-gradient(circle,rgba(168,80,48,0.14),transparent 65%)"
-      ></div>
-      <div
-        class="orb parallax-y-slow"
-        style="bottom:-12%;left:18%;width:56vw;height:56vw;background:radial-gradient(circle,rgba(123,170,196,0.12),transparent 65%)"
-      ></div>
+    <!-- Scroll-linked background stack (Herdia-style depth: bloom + grid + veil) -->
+    <div class="landing-scroll-bg" aria-hidden="true">
+      <div class="scroll-bg-sheet scroll-bg-sheet--bloom"></div>
+      <div class="scroll-bg-sheet scroll-bg-sheet--cool"></div>
+      <div class="scroll-bg-sheet scroll-bg-sheet--gold"></div>
+      <div class="scroll-bg-grid"></div>
+      <div class="scroll-bg-veil"></div>
     </div>
 
 
@@ -125,7 +118,7 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
       data-parallax
       data-reveal-host
     >
-      <div class="bg-grid parallax-y-slow absolute inset-0 -z-10"></div>
+      <div class="bg-grid parallax-grid-drift absolute inset-0 -z-10"></div>
       <div class="warm-wash"></div>
       <div class="horizon"></div>
 
