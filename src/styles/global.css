@@ -166,6 +166,83 @@ body[data-page="landing"] {
   );
 }
 
+/* Chapter cross-fade watermarks — background UI tied to scroll / active chapter */
+.scroll-bg-watermarks {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.scroll-wm {
+  grid-area: 1 / 1;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(5.5rem, 26vw, 20rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--marea-text, #c8c4bc);
+  opacity: 0;
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate3d(
+    calc(var(--sy, 0px) * 0.018),
+    calc(var(--sp, 0) * -8vh),
+    0
+  );
+  user-select: none;
+  white-space: nowrap;
+}
+html[data-landing-ch="0"] .scroll-wm[data-wm="0"],
+html[data-landing-ch="1"] .scroll-wm[data-wm="1"],
+html[data-landing-ch="2"] .scroll-wm[data-wm="2"],
+html[data-landing-ch="3"] .scroll-wm[data-wm="3"],
+html[data-landing-ch="4"] .scroll-wm[data-wm="4"],
+html[data-landing-ch="5"] .scroll-wm[data-wm="5"] {
+  opacity: 0.055;
+}
+
+/* Traveling highlight band — reads scroll depth in the deep layer */
+.scroll-bg-sheen {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  height: 42vh;
+  top: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in oklab, var(--marea-lyra, #4a6eb8) 12%, transparent) 45%,
+    color-mix(in oklab, var(--marea-gold, #b8926a) 8%, transparent) 55%,
+    transparent 100%
+  );
+  opacity: 0.35;
+  filter: blur(48px);
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.02),
+    calc(var(--sp, 0) * (100vh - 42vh)),
+    0
+  );
+  pointer-events: none;
+}
+
+/* Subtle viewport frame — emerges as you move through the story */
+.scroll-bg-frame {
+  position: absolute;
+  inset: 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--marea-line, rgba(74, 110, 184, 0.14)) 55%, transparent);
+  border-radius: 2px;
+  opacity: calc(0.08 + var(--sp, 0) * 0.14);
+  transform: scale(calc(0.995 - var(--sp, 0) * 0.012));
+  transform-origin: center;
+  pointer-events: none;
+}
+@media (max-width: 1023px) {
+  .scroll-bg-frame {
+    inset: 0.5rem;
+    opacity: calc(0.05 + var(--sp, 0) * 0.08);
+  }
+}
+
 body[data-page="landing"] ::selection {
   background: var(--marea-gold, #d4a574);
   color: var(--marea-deep, #02040a);
@@ -577,9 +654,9 @@ body[data-page="landing"] .progress-rail > i {
 /* Floating scroll-depth indicator */
 .depth-hud {
   position: fixed;
-  left: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 30;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 35;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.25em;
@@ -587,8 +664,44 @@ body[data-page="landing"] .progress-rail > i {
   pointer-events: none;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  mix-blend-mode: screen;
+  gap: 0;
+  mix-blend-mode: normal;
+}
+
+body[data-page="landing"] .depth-hud {
+  left: max(0.75rem, env(safe-area-inset-left));
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.depth-hud-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.85rem 0.65rem 0.65rem;
+  border-radius: 3px;
+  border: 1px solid color-mix(in oklab, var(--marea-line, rgba(74, 110, 184, 0.14)) 80%, transparent);
+  background: color-mix(in oklab, var(--marea-deep, #02040a) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 1px color-mix(in oklab, white 4%, transparent) inset;
+}
+
+.depth-hud-ch {
+  color: color-mix(in oklab, var(--marea-text, #c8c4bc) 88%, transparent);
+  letter-spacing: 0.22em;
+}
+.depth-hud-sub {
+  margin-top: 0.35rem;
+  color: color-mix(in oklab, var(--marea-text, #c8c4bc) 48%, transparent);
+  letter-spacing: 0.28em;
+}
+.depth-hud-hint {
+  margin-top: 0.45rem;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: color-mix(in oklab, var(--marea-lyra, #4a6eb8) 55%, var(--marea-text, #c8c4bc) 45%);
 }
 .depth-hud .dial {
   width: 38px;
@@ -609,8 +722,8 @@ body[data-page="landing"] .depth-hud .dial {
   background:
     conic-gradient(
       from -90deg,
-      var(--marea-gold, #d4a574) calc(var(--sp, 0) * 360deg),
-      rgba(91, 141, 239, 0.12) 0
+      var(--marea-gold, #b8926a) calc(var(--sp, 0) * 360deg),
+      color-mix(in oklab, var(--marea-lyra, #4a6eb8) 22%, transparent) 0
     );
 }
 body[data-page="landing"] .depth-hud .dial::after {
@@ -629,6 +742,65 @@ body[data-page="landing"] .depth-hud .dial::after {
   color: white;
   font-size: 9px;
   letter-spacing: 0.15em;
+}
+
+/* Right chapter rail — glass overlay, gold active state */
+.chapter-rail-overlay {
+  padding: 0.5rem 0.35rem;
+  border-radius: 3px;
+  border: 1px solid color-mix(in oklab, var(--marea-line, rgba(74, 110, 184, 0.14)) 75%, transparent);
+  background: color-mix(in oklab, var(--marea-deep, #02040a) 72%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.32),
+    0 0 0 1px color-mix(in oklab, white 3%, transparent) inset;
+}
+.chapter-rail-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 2px;
+  text-decoration: none;
+  color: color-mix(in oklab, var(--marea-text, #c8c4bc) 38%, transparent);
+  transition:
+    color 0.25s ease,
+    background 0.25s ease;
+}
+.chapter-rail-link:hover {
+  color: color-mix(in oklab, var(--marea-text, #c8c4bc) 85%, transparent);
+  background: color-mix(in oklab, white 4%, transparent);
+}
+.chapter-rail-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  min-width: 1.5rem;
+  text-align: right;
+}
+.chapter-rail-line {
+  display: block;
+  height: 1px;
+  width: 1rem;
+  background: currentColor;
+  opacity: 0.55;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+}
+.chapter-rail-link.is-active {
+  color: var(--marea-gold, #b8926a);
+}
+.chapter-rail-link.is-active .chapter-rail-line {
+  width: 2rem;
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--marea-gold, #b8926a) 15%,
+    var(--marea-gold, #b8926a) 85%,
+    transparent
+  );
 }
 
 /* Horizon line that glides across the viewport */
@@ -1507,5 +1679,17 @@ body[data-page="landing"] .italic-display {
   }
   body[data-page="landing"] .horizon {
     transform: none !important;
+  }
+  .scroll-wm {
+    transform: none !important;
+    transition: none !important;
+  }
+  .scroll-bg-sheen {
+    transform: none !important;
+    opacity: 0.22 !important;
+  }
+  .scroll-bg-frame {
+    transform: none !important;
+    opacity: 0.1 !important;
   }
 }

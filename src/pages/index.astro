@@ -9,7 +9,7 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
 ---
 
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full" data-landing-ch="0">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,26 +33,39 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
     <!-- Progress rail -->
     <div class="progress-rail" id="progress-rail"><i id="progress-bar"></i></div>
 
-    <!-- Floating scroll-depth HUD -->
+    <!-- Bottom-left scroll HUD (glass overlay) -->
     <div class="depth-hud" aria-hidden="true">
-      <div class="dial"><span id="hud-pct">00</span></div>
-      <div class="flex flex-col leading-none">
-        <span class="text-[color-mix(in_oklab,var(--marea-text)_72%,transparent)]"
-          >CH · <span id="hud-ch">00</span> / 05</span
-        >
-        <span class="mt-1 text-[color-mix(in_oklab,var(--marea-text)_42%,transparent)]">SCROLL DEPTH</span>
-        <span class="mt-1.5 hidden text-[9px] text-[color-mix(in_oklab,var(--marea-lyra)_50%,var(--marea-text)_50%)] sm:block"
-          >↑↓ NAVIGATE · / → AGENT</span
-        >
+      <div class="depth-hud-panel">
+        <div class="dial"><span id="hud-pct">00</span></div>
+        <div class="flex flex-col leading-none">
+          <span class="depth-hud-ch"
+            >CH · <span id="hud-ch">00</span> / 05</span
+          >
+          <span class="depth-hud-sub">SCROLL DEPTH</span>
+          <span class="depth-hud-hint hidden sm:block">↑↓ NAVIGATE · / → AGENT</span>
+        </div>
       </div>
     </div>
 
-    <!-- Scroll-linked background stack (Herdia-style depth: bloom + grid + veil) -->
+    <!-- Scroll-linked background stack + chapter watermarks + progress sheen -->
     <div class="landing-scroll-bg" aria-hidden="true">
       <div class="scroll-bg-sheet scroll-bg-sheet--bloom"></div>
       <div class="scroll-bg-sheet scroll-bg-sheet--cool"></div>
       <div class="scroll-bg-sheet scroll-bg-sheet--gold"></div>
       <div class="scroll-bg-grid"></div>
+      <!-- Giant watermark word cross-fades per chapter (synced with data-landing-ch) -->
+      <div class="scroll-bg-watermarks">
+        <span class="scroll-wm" data-wm="0">OPEN</span>
+        <span class="scroll-wm" data-wm="1">LEDGER</span>
+        <span class="scroll-wm" data-wm="2">PROOF</span>
+        <span class="scroll-wm" data-wm="3">RANGE</span>
+        <span class="scroll-wm" data-wm="4">SIGNAL</span>
+        <span class="scroll-wm" data-wm="5">IN</span>
+      </div>
+      <!-- Soft band that travels down the page with scroll depth -->
+      <div class="scroll-bg-sheen"></div>
+      <!-- Faint viewport frame tightens slightly as you progress -->
+      <div class="scroll-bg-frame"></div>
       <div class="scroll-bg-veil"></div>
     </div>
 
@@ -84,28 +97,29 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
       <div class="landing-header-hairline" aria-hidden="true"></div>
     </header>
 
-    <!-- Right-edge keyboard-nav hint -->
+    <!-- Right-edge chapter rail (glass overlay; highlights active chapter while scrolling) -->
     <aside
-      class="pointer-events-none fixed right-6 top-1/2 z-20 hidden -translate-y-1/2 flex-col items-end gap-3 font-mono text-[10px] tracking-[0.3em] text-ink-500 lg:flex"
+      class="chapter-rail-overlay pointer-events-none fixed right-4 top-1/2 z-[35] hidden -translate-y-1/2 flex-col items-stretch gap-1 sm:right-5 md:flex"
       id="chapter-nav"
+      aria-label="Chapter navigation"
     >
-      <a href="#ch-00" data-ch="0" class="pointer-events-auto flex items-center gap-3 transition hover:text-white">
-        <span>00</span><span class="h-px w-8 bg-current"></span>
+      <a href="#ch-00" data-ch="0" class="chapter-rail-link pointer-events-auto is-active" aria-current="location">
+        <span class="chapter-rail-num">00</span><span class="chapter-rail-line"></span>
       </a>
-      <a href="#ch-01" data-ch="1" class="pointer-events-auto flex items-center gap-3 transition hover:text-white">
-        <span>01</span><span class="h-px w-4 bg-current"></span>
+      <a href="#ch-01" data-ch="1" class="chapter-rail-link pointer-events-auto">
+        <span class="chapter-rail-num">01</span><span class="chapter-rail-line"></span>
       </a>
-      <a href="#ch-02" data-ch="2" class="pointer-events-auto flex items-center gap-3 transition hover:text-white">
-        <span>02</span><span class="h-px w-4 bg-current"></span>
+      <a href="#ch-02" data-ch="2" class="chapter-rail-link pointer-events-auto">
+        <span class="chapter-rail-num">02</span><span class="chapter-rail-line"></span>
       </a>
-      <a href="#ch-03" data-ch="3" class="pointer-events-auto flex items-center gap-3 transition hover:text-white">
-        <span>03</span><span class="h-px w-4 bg-current"></span>
+      <a href="#ch-03" data-ch="3" class="chapter-rail-link pointer-events-auto">
+        <span class="chapter-rail-num">03</span><span class="chapter-rail-line"></span>
       </a>
-      <a href="#ch-04" data-ch="4" class="pointer-events-auto flex items-center gap-3 transition hover:text-white">
-        <span>04</span><span class="h-px w-4 bg-current"></span>
+      <a href="#ch-04" data-ch="4" class="chapter-rail-link pointer-events-auto">
+        <span class="chapter-rail-num">04</span><span class="chapter-rail-line"></span>
       </a>
-      <a href="#ch-05" data-ch="5" class="pointer-events-auto flex items-center gap-3 transition hover:text-white">
-        <span>05</span><span class="h-px w-4 bg-current"></span>
+      <a href="#ch-05" data-ch="5" class="chapter-rail-link pointer-events-auto">
+        <span class="chapter-rail-num">05</span><span class="chapter-rail-line"></span>
       </a>
     </aside>
 
@@ -876,11 +890,10 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
         const navLinks = Array.from(document.querySelectorAll("#chapter-nav a"));
         const activateNav = (i) => {
           navLinks.forEach((a, idx) => {
-            const line = a.querySelector("span:last-child");
-            const label = a.querySelector("span:first-child");
-            if (!line || !label) return;
-            line.style.width = idx === i ? "2rem" : "1rem";
-            label.style.color = idx === i ? "white" : "";
+            const on = idx === i;
+            a.classList.toggle("is-active", on);
+            if (on) a.setAttribute("aria-current", "location");
+            else a.removeAttribute("aria-current");
           });
         };
 
@@ -914,6 +927,7 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
             if (midY >= c.offsetTop) active = i;
           }
           if (hudCh) hudCh.textContent = String(active).padStart(2, "0");
+          root.setAttribute("data-landing-ch", String(active));
           activateNav(active);
           chapters.forEach((c, i) => {
             if (!c) return;
@@ -926,10 +940,8 @@ import FlowCaption from "../components/landing/FlowCaption.astro";
           scheduled = true;
           requestAnimationFrame(tick);
         };
-        if (!reduce) {
-          window.addEventListener("scroll", onScroll, { passive: true });
-          window.addEventListener("resize", onScroll, { passive: true });
-        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll, { passive: true });
         tick();
 
         /* -------------------------------------------------------------- */
