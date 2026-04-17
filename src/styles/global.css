@@ -1046,86 +1046,155 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* -------------------------------------------------------------------------- */
 /* Landing burn scene — lighter + tax-form paper + scroll-driven burn        */
 /* Driven by --sp (document scroll progress 0→1) already set by landing JS.  */
+/* Composition: a single fixed .burn-stage positions paper + lighter so the   */
+/* flame actually meets the paper's bottom-right burn point.                  */
 /* -------------------------------------------------------------------------- */
 
 body[data-page="landing"] .burn-scene {
   position: fixed;
   inset: 0;
-  /* Sit above body bg but below normal-flow section content (z:1) */
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0.92;
-  /* mix-blend: plus-lighter so only warm values add, dark paper darkens into
-     the page rather than hiding behind the body bg. Falls back gracefully. */
-  mix-blend-mode: plus-lighter;
 }
 
 /* On narrow viewports the scene becomes too dominant — hide it sub-md */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   body[data-page="landing"] .burn-scene { display: none; }
+}
+
+/* The stage — a right-anchored panel that owns relative positions.
+   Paper, lighter, ash, smoke all place themselves inside this frame. */
+.burn-stage {
+  position: absolute;
+  top: 50%;
+  right: clamp(2vw, 4vw, 6vw);
+  transform: translateY(-48%);
+  width: clamp(380px, 34vw, 540px);
+  height: clamp(600px, 76vh, 840px);
+  opacity: 0.95;
+  filter: saturate(0.92) contrast(1.02);
+  /* Tilt the whole composition very slightly as you scroll */
+  rotate: calc(var(--sp, 0) * 0.4deg);
 }
 
 .burn-scene .paper-wrap {
   position: absolute;
-  top: clamp(10%, 14vh, 18%);
-  right: clamp(3%, 5vw, 8%);
-  width: clamp(240px, 26vw, 420px);
-  transform-origin: 80% 20%;
+  top: 2%;
+  right: 8%;
+  width: 74%;
+  transform-origin: 85% 98%;
+  /* Scroll pulls the paper up-and-to-the-right slightly as it burns */
   transform:
-    rotate(calc(-8deg + var(--sp, 0) * -5deg))
-    translate3d(calc(var(--sp, 0) * -8px), calc(var(--sp, 0) * 20px), 0);
-  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.55));
+    rotate(calc(-6deg + var(--sp, 0) * -2.5deg))
+    translate3d(calc(var(--sp, 0) * 4px), calc(var(--sp, 0) * -6px), 0);
+  filter:
+    drop-shadow(0 30px 50px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
   will-change: transform;
+  animation: paperHover 9.5s ease-in-out infinite;
+}
+
+/* Gentle idle sway — makes the paper feel held, not glued */
+@keyframes paperHover {
+  0%, 100% { translate: 0 0; }
+  33%      { translate: -2px -4px; }
+  66%      { translate: 3px 2px; }
 }
 
 .burn-scene .paper-svg { display: block; width: 100%; height: auto; }
 
-/* Burn mask shape grows from bottom-right as scroll progresses */
+/* Burn mask shape grows from bottom-right as scroll progresses.
+   Also drifts slightly + rotates for organic feel. */
 .burn-scene .burn-shape {
   transform-origin: 50% 50%;
   transform-box: fill-box;
-  transform: scale(calc(var(--sp, 0) * 3.6));
+  transform:
+    scale(calc(var(--sp, 0) * 3.6))
+    rotate(calc(var(--sp, 0) * 8deg));
   transition: none;
   will-change: transform;
+}
+
+/* Char rim pulsates slightly, as if smoldering */
+.burn-scene .char-ring {
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  animation: charPulse 2.6s ease-in-out infinite;
+}
+@keyframes charPulse {
+  0%, 100% { opacity: 0.82; }
+  50%      { opacity: 1; }
 }
 
 /* Lighter anchored bottom-right, below the paper tip */
 .burn-scene .lighter-wrap {
   position: absolute;
-  bottom: clamp(10%, 14vh, 18%);
-  right: clamp(10%, 12vw, 18%);
-  width: clamp(56px, 4.2vw, 96px);
-  transform: translate3d(0, calc(var(--sp, 0) * -14px), 0);
-  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
+  /* Tucked under the paper's bottom-right burn point */
+  bottom: 6%;
+  right: 4%;
+  width: 22%;
+  transform-origin: 50% 100%;
+  /* The lighter lifts slightly toward the paper as scroll progresses */
+  transform:
+    translate3d(0, calc(var(--sp, 0) * -18px), 0)
+    rotate(calc(var(--sp, 0) * -2deg));
+  filter:
+    drop-shadow(0 18px 22px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
   will-change: transform;
+  animation: lighterHold 4.3s ease-in-out infinite;
 }
 .burn-scene .lighter-svg { display: block; width: 100%; height: auto; }
 
-/* Flame scales from tiny spark to tall plume */
+/* Micro-wobble, as if a hand is holding the lighter steady */
+@keyframes lighterHold {
+  0%, 100% { rotate: 0deg; translate: 0 0; }
+  40%      { rotate: 0.6deg; translate: 0.4px -0.6px; }
+  70%      { rotate: -0.4deg; translate: -0.3px 0.3px; }
+}
+
+/* Flame scales from tiny pilot to full plume with scroll + dances at idle */
 .burn-scene .flame {
   transform-origin: 50% 100%;
   transform-box: fill-box;
-  transform: scale(calc(0.28 + var(--sp, 0) * 1.35));
-  opacity: calc(0.12 + var(--sp, 0) * 0.95);
-  animation: flameFlicker 260ms ease-in-out infinite alternate;
-  will-change: transform, opacity;
+  /* Base scale: pilot of 0.22 at top of page → 1.55 at full burn */
+  transform: scale(calc(0.22 + var(--sp, 0) * 1.35));
+  opacity: calc(0.18 + var(--sp, 0) * 0.9);
+  will-change: transform, opacity, filter;
 }
-@keyframes flameFlicker {
-  0%   { filter: brightness(1) hue-rotate(0deg); }
-  50%  { filter: brightness(1.15) hue-rotate(-4deg); }
-  100% { filter: brightness(0.95) hue-rotate(3deg); }
+.burn-scene .flame-plume {
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+  animation: flameDance 520ms ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(255, 170, 70, 0.55));
+}
+@keyframes flameDance {
+  0%   { transform: translateX(-1.2px) scaleY(0.94) scaleX(1.06); filter: brightness(0.96) hue-rotate(0deg) drop-shadow(0 0 8px rgba(255,170,70,0.55)); }
+  50%  { transform: translateX(0.6px)  scaleY(1.04) scaleX(0.98); filter: brightness(1.08) hue-rotate(-3deg) drop-shadow(0 0 14px rgba(255,180,80,0.75)); }
+  100% { transform: translateX(-0.4px) scaleY(1.10) scaleX(0.92); filter: brightness(1.00) hue-rotate(2deg) drop-shadow(0 0 10px rgba(255,160,60,0.55)); }
 }
 
 /* Inner flame core — flicker faster and out of phase */
 .burn-scene .flame-core {
   transform-origin: 50% 100%;
   transform-box: fill-box;
-  animation: coreFlicker 180ms ease-in-out infinite alternate;
+  animation: coreFlicker 230ms ease-in-out infinite alternate;
 }
 @keyframes coreFlicker {
-  0%   { transform: scaleY(0.95) scaleX(1.05); }
-  100% { transform: scaleY(1.08) scaleX(0.92); }
+  0%   { transform: scaleY(0.92) scaleX(1.08) translateX(-0.3px); opacity: 0.92; }
+  100% { transform: scaleY(1.12) scaleX(0.9)  translateX(0.5px);  opacity: 1; }
+}
+
+/* Blue base flickers independently — shorter, sharper */
+.burn-scene .flame-base {
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+  animation: baseFlicker 180ms ease-in-out infinite alternate;
+}
+@keyframes baseFlicker {
+  0%   { transform: scaleX(0.85); opacity: 0.8; }
+  100% { transform: scaleX(1.1);  opacity: 1; }
 }
 
 /* Embers — small glowing particles rising from the burn edge */
@@ -1134,64 +1203,157 @@ body[data-page="landing"] .burn-scene {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff1b8 0%, #ffb347 35%, #ff6a00 60%, transparent 75%);
+  background: radial-gradient(circle, #fff4c2 0%, #ffb347 35%, #ff6a00 60%, transparent 78%);
   filter: blur(0.6px);
   opacity: 0;
   will-change: transform, opacity;
   animation: emberRise 4.4s ease-out infinite;
+  box-shadow: 0 0 8px rgba(255, 160, 60, 0.6);
 }
 .burn-scene .ember-2 { animation-delay: 0.6s; animation-duration: 3.8s; width: 3px; height: 3px; }
 .burn-scene .ember-3 { animation-delay: 1.4s; animation-duration: 5.2s; width: 5px; height: 5px; }
 .burn-scene .ember-4 { animation-delay: 2.1s; animation-duration: 4.0s; width: 3px; height: 3px; }
 .burn-scene .ember-5 { animation-delay: 0.2s; animation-duration: 4.6s; width: 4px; height: 4px; }
 .burn-scene .ember-6 { animation-delay: 3.0s; animation-duration: 3.2s; width: 2px; height: 2px; }
+.burn-scene .ember-7 { animation-delay: 1.8s; animation-duration: 5.8s; width: 3px; height: 3px; }
+.burn-scene .ember-8 { animation-delay: 0.9s; animation-duration: 4.2s; width: 4px; height: 4px; }
 
-/* Dim embers until the flame has caught (sp > ~0.08) */
+/* Dim embers until the flame has caught (sp > ~0.05) */
 .burn-scene .ember-stage {
-  opacity: calc(clamp(0, (var(--sp, 0) - 0.05) * 4, 1));
+  position: absolute;
+  inset: 0;
+  opacity: calc(clamp(0, (var(--sp, 0) - 0.03) * 5, 1));
   transition: none;
+  pointer-events: none;
 }
 
 @keyframes emberRise {
-  0%   { opacity: 0; transform: translate3d(0, 0, 0); }
-  12%  { opacity: 1; }
-  60%  { opacity: 0.85; }
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) scale(0.6); }
+  12%  { opacity: 1; transform: translate3d(0, -10px, 0) scale(1); }
+  60%  { opacity: 0.75; }
   100% {
     opacity: 0;
-    transform: translate3d(var(--ex, -30px), var(--ey, -280px), 0);
+    transform: translate3d(var(--ex, -30px), var(--ey, -280px), 0) scale(0.4);
   }
 }
 
-/* Smoke — faint dark plume rising from the burn; grows with scroll */
+/* Ash — darker, softer flakes that fall from the burn edge */
+.burn-scene .ash-stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(clamp(0, (var(--sp, 0) - 0.08) * 3, 1));
+}
+.burn-scene .ash {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 40%;
+  background: radial-gradient(circle, rgba(60, 50, 44, 0.92) 0%, rgba(30, 25, 22, 0.4) 60%, transparent 80%);
+  filter: blur(0.4px);
+  opacity: 0;
+  animation: ashFall var(--ad, 6s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes ashFall {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg); }
+  10%  { opacity: 0.85; }
+  90%  { opacity: 0.4; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--ax, -40px), var(--ay, 260px), 0) rotate(var(--ar, 180deg));
+  }
+}
+
+/* Smoke — faint plume rising from the burn; grows with scroll + drifts */
 .burn-scene .smoke {
   position: absolute;
-  bottom: 14%;
-  right: 12%;
+  bottom: 18%;
+  right: 14%;
   width: clamp(220px, 22vw, 380px);
   height: clamp(320px, 36vw, 560px);
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(10, 10, 14, 0.65) 0%, rgba(10, 10, 14, 0.25) 40%, transparent 70%);
-  filter: blur(22px);
-  opacity: calc(var(--sp, 0) * 0.75);
-  transform: translate3d(0, calc(var(--sp, 0) * -60px), 0) scale(calc(0.8 + var(--sp, 0) * 0.6));
+    radial-gradient(ellipse at 50% 100%, rgba(14, 12, 18, 0.75) 0%, rgba(14, 12, 18, 0.28) 40%, transparent 72%);
+  filter: blur(26px);
+  opacity: calc(var(--sp, 0) * 0.85);
   transform-origin: 50% 100%;
-  mix-blend-mode: multiply;
   will-change: transform, opacity;
+  animation: smokeDrift 11s ease-in-out infinite;
+}
+@keyframes smokeDrift {
+  0%, 100% {
+    transform:
+      translate3d(0, calc(var(--sp, 0) * -60px), 0)
+      scale(calc(0.8 + var(--sp, 0) * 0.6));
+  }
+  50% {
+    transform:
+      translate3d(-14px, calc(var(--sp, 0) * -80px), 0)
+      scale(calc(0.9 + var(--sp, 0) * 0.65))
+      skewX(-2deg);
+  }
 }
 
-/* Hot glow beneath the flame — a warm wash that grows as fire takes hold */
+/* Secondary, lighter smoke layer for depth */
+.burn-scene .smoke-2 {
+  position: absolute;
+  bottom: 22%;
+  right: 10%;
+  width: clamp(180px, 18vw, 320px);
+  height: clamp(280px, 30vw, 480px);
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(90, 85, 95, 0.35) 0%, rgba(90, 85, 95, 0.12) 40%, transparent 70%);
+  filter: blur(30px);
+  opacity: calc(var(--sp, 0) * 0.55);
+  transform-origin: 50% 100%;
+  animation: smokeDrift2 14s ease-in-out infinite;
+}
+@keyframes smokeDrift2 {
+  0%, 100% {
+    transform: translate3d(0, calc(var(--sp, 0) * -40px), 0) scale(calc(0.75 + var(--sp, 0) * 0.5));
+  }
+  50% {
+    transform: translate3d(18px, calc(var(--sp, 0) * -70px), 0) scale(calc(0.9 + var(--sp, 0) * 0.6)) skewX(3deg);
+  }
+}
+
+/* Hot glow beneath the flame — a warm wash that pulses gently */
 .burn-scene .hot-glow {
   position: absolute;
-  bottom: 8%;
-  right: 10%;
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(255, 140, 40, 0.35) 0%, rgba(255, 80, 0, 0.15) 45%, transparent 70%);
-  filter: blur(28px);
-  opacity: calc(var(--sp, 0) * 0.9);
-  transform: scale(calc(0.6 + var(--sp, 0) * 1.4));
+  bottom: 10%;
+  right: 12%;
+  width: clamp(240px, 24vw, 360px);
+  height: clamp(240px, 24vw, 360px);
+  background:
+    radial-gradient(circle,
+      rgba(255, 170, 60, 0.42) 0%,
+      rgba(255, 110, 20, 0.22) 35%,
+      rgba(255, 60, 0, 0.08) 60%,
+      transparent 75%);
+  filter: blur(32px);
+  opacity: calc(var(--sp, 0) * 0.95);
   transform-origin: 50% 80%;
   will-change: transform, opacity;
+  animation: glowBreathe 3.8s ease-in-out infinite;
+}
+@keyframes glowBreathe {
+  0%, 100% { transform: scale(calc(0.6 + var(--sp, 0) * 1.35)); }
+  50%      { transform: scale(calc(0.7 + var(--sp, 0) * 1.55)); }
+}
+
+/* Warm-light wash on the paper itself (separate pass, small halo) */
+.burn-scene .paper-lit {
+  position: absolute;
+  bottom: 18%;
+  right: 22%;
+  width: clamp(160px, 16vw, 240px);
+  height: clamp(160px, 16vw, 240px);
+  background:
+    radial-gradient(circle at 60% 70%, rgba(255, 180, 90, 0.35) 0%, rgba(255, 120, 40, 0.12) 40%, transparent 65%);
+  filter: blur(18px);
+  opacity: calc(var(--sp, 0) * 0.85);
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1228,15 +1390,22 @@ body[data-page="landing"] .burn-scene {
 
   /* Burn scene: keep a static frame (small flame, no embers, no smoke growth) */
   .burn-scene .flame,
+  .burn-scene .flame-plume,
   .burn-scene .flame-core,
+  .burn-scene .flame-base,
   .burn-scene .ember,
+  .burn-scene .ash,
   .burn-scene .smoke,
+  .burn-scene .smoke-2,
   .burn-scene .hot-glow,
   .burn-scene .paper-wrap,
   .burn-scene .lighter-wrap,
-  .burn-scene .burn-shape {
+  .burn-scene .burn-shape,
+  .burn-scene .char-ring,
+  .burn-stage {
     animation: none !important;
     transform: none !important;
   }
-  .burn-scene .ember { opacity: 0 !important; }
+  .burn-scene .ember,
+  .burn-scene .ash { opacity: 0 !important; }
 }
