@@ -1,0 +1,18 @@
+---
+interface Props {
+  value: string;
+  label: string;
+  caption: string;
+}
+const { value, label, caption } = Astro.props;
+---
+
+<div class="reveal flex flex-col gap-4 border-l border-white/10 pl-6 sm:pl-8" data-parallax>
+  <span class="stat-num p-rise text-[clamp(4rem,10vw,8rem)] text-white" data-split>{value}</span>
+  <div>
+    <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-ink-400">
+      {label}
+    </p>
+    <p class="mt-2 max-w-xs text-sm leading-relaxed text-ink-400">{caption}</p>
+  </div>
+</div>

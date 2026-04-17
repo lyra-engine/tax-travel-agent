@@ -1,0 +1,108 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Fidelis — Tax AI & residency tools for financial advisors",
+  description = "An embeddable tax AI agent plus a residency day-tracker for financial advisors. Grounded answers, tool-verified calculations, per-client context.",
+} = Astro.props;
+
+const user = Astro.locals.user;
+const org = Astro.locals.org;
+const authOn = Astro.locals.authEnabled;
+---
+
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&display=swap"
+    />
+  </head>
+  <body class="min-h-full antialiased">
+    <header class="relative z-10 border-b border-white/5">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/" class="flex items-center gap-2.5 font-semibold tracking-tight">
+          <span class="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand-400 to-accent-500 text-ink-950 shadow-lg shadow-brand-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M2 12h20" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /><circle cx="12" cy="12" r="10" /></svg>
+          </span>
+          <span>Fidelis</span>
+        </a>
+        <nav class="flex items-center gap-1 text-sm text-ink-300">
+          <a href="/" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Home</a>
+          <a href="/agent" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Agent</a>
+          <a href="/scenarios" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Scenarios</a>
+          <a href="/intake" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Intake</a>
+          <a href="/tracker" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Tracker</a>
+          <a href="/audit" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Audit</a>
+          {user && user.role === "admin" && (
+            <a href="/team" class="rounded-lg px-3 py-1.5 transition hover:bg-white/5 hover:text-white">Team</a>
+          )}
+          {user ? (
+            <div class="ml-2 flex items-center gap-2">
+              <div class="hidden rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5 sm:block">
+                <div class="text-[10px] uppercase tracking-wider text-ink-500">{org?.name ?? ""}</div>
+                <div class="text-xs text-ink-200">{user.email}</div>
+              </div>
+              <form method="post" action="/api/auth/logout">
+                <button class="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-ink-300 hover:bg-white/5 hover:text-white">
+                  Sign out
+                </button>
+              </form>
+            </div>
+          ) : authOn ? (
+            <a
+              href="/login"
+              class="ml-2 rounded-lg bg-brand-500 px-3.5 py-1.5 font-medium text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-400"
+            >
+              Sign in →
+            </a>
+          ) : (
+            <a
+              href="/agent"
+              class="ml-2 rounded-lg bg-brand-500 px-3.5 py-1.5 font-medium text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-400"
+            >
+              Launch agent →
+            </a>
+          )}
+        </nav>
+      </div>
+    </header>
+
+    <main class="relative z-0">
+      <slot />
+    </main>
+
+    <footer class="mt-20 border-t border-white/5">
+      <div class="mx-auto max-w-6xl px-6 py-10 text-sm text-ink-400">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div class="max-w-xl">
+            <p class="font-medium text-ink-200">Not tax or legal advice.</p>
+            <p class="mt-1">
+              This tool is an educational calculator. Residency rules depend on
+              treaties, ties, and facts this tool doesn't know about. Consult a
+              qualified tax professional before making decisions.
+            </p>
+          </div>
+          <p class="text-ink-500">Built with Astro · Runs locally in your browser.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AdvisorAgent from "../components/agent/AdvisorAgent.tsx";
+
+const hasKey = !!(import.meta.env.OPENAI_API_KEY || import.meta.env.GROQ_API_KEY);
+---
+
+<Layout title="Fidelis — Tax AI for financial advisors">
+  <section class="mx-auto max-w-7xl px-6 pt-10 pb-20">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <span class="chip w-fit">
+          <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+          Fidelis · Tax planning copilot
+        </span>
+        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Your base tax agent for financial advisors
+        </h1>
+        <p class="mt-2 max-w-2xl text-ink-300">
+          Grounded answers, tool-verified calculations, per-client context,
+          persisted conversations, and one-click memo export. Drop it into
+          your advisor platform and extend the tool registry.
+        </p>
+      </div>
+      {!hasKey && (
+        <div class="max-w-sm rounded-xl border border-warn-500/40 bg-warn-500/10 px-4 py-3 text-sm text-warn-200">
+          <p class="font-medium text-warn-300">OPENAI_API_KEY not set</p>
+          <p class="mt-1 text-xs text-warn-200/80">
+            Create a <code class="rounded bg-black/30 px-1 font-mono text-xs">.env</code>
+            in the project root with{" "}
+            <code class="rounded bg-black/30 px-1 font-mono text-xs">OPENAI_API_KEY=sk-…</code>
+            and restart the dev server. The chat UI works offline but will
+            return a clear error on send.
+          </p>
+        </div>
+      )}
+    </div>
+
+    <div class="mt-8">
+      <AdvisorAgent client:only="react" />
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,28 @@
+---
+export const prerender = true;
+import Layout from "../layouts/Layout.astro";
+import ResidencyTracker from "../components/tracker/ResidencyTracker.tsx";
+---
+
+<Layout title="Residency Day Tracker — Travel Tax Assistant">
+  <section class="mx-auto max-w-6xl px-6 pt-12 pb-20">
+    <div class="flex flex-col gap-2">
+      <span class="chip w-fit">
+        <span class="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
+        Tracker
+      </span>
+      <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        Your residency day tracker
+      </h1>
+      <p class="max-w-2xl text-ink-300">
+        Add every trip you've taken (or plan to take) in the current tax year
+        and the two years before it. We'll do the day math, flag threshold
+        risks, and run the US Substantial Presence Test for you.
+      </p>
+    </div>
+
+    <div class="mt-10">
+      <ResidencyTracker client:load />
+    </div>
+  </section>
+</Layout>

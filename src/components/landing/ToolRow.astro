@@ -1,0 +1,18 @@
+---
+interface Props {
+  name: string;
+  ok?: boolean;
+  ms: string;
+  note?: string;
+}
+const { name, ok = true, ms, note } = Astro.props;
+---
+
+<div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-3.5 py-2.5 font-mono text-[12px] text-ink-200">
+  <span class={ok ? "text-accent-400" : "text-danger-400"}>
+    {ok ? "✓" : "✗"}
+  </span>
+  <span class="text-white">{name}</span>
+  {note ? <span class="hidden text-ink-500 md:inline">· {note}</span> : null}
+  <span class="ml-auto text-ink-500">{ms}</span>
+</div>

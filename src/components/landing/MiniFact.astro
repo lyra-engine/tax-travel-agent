@@ -1,0 +1,18 @@
+---
+interface Props {
+  label: string;
+  value: string;
+  suffix?: string;
+}
+const { label, value, suffix } = Astro.props;
+---
+
+<div class="flex flex-col gap-1 border-l border-white/10 pl-4">
+  <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ink-500">
+    {label}
+  </span>
+  <span class="font-display text-2xl font-light tracking-tight text-white">
+    {value}
+    {suffix ? <span class="text-sm text-ink-400"> {suffix}</span> : null}
+  </span>
+</div>

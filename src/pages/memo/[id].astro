@@ -1,0 +1,22 @@
+---
+export const prerender = false;
+import PrintableMemo from "../../components/memo/PrintableMemo.tsx";
+import "../../styles/global.css";
+
+const { id } = Astro.params;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Memo · Fidelis</title>
+    <meta name="color-scheme" content="light" />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  </head>
+  <body class="bg-slate-200">
+    <PrintableMemo conversationId={id ?? ""} client:only="react" />
+  </body>
+</html>

@@ -1,0 +1,94 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+export const prerender = false;
+
+const params = new URL(Astro.request.url).searchParams;
+const next = params.get("next") ?? "/agent";
+const invite = params.get("invite") ?? "";
+---
+
+<Layout title="Create account — Fidelis">
+  <section class="mx-auto flex max-w-md flex-col px-6 pt-12 pb-20">
+    <div class="card p-6">
+      <span class="chip w-fit">
+        <span class="h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+        Create account
+      </span>
+      <h1 class="mt-3 text-2xl font-semibold text-white">
+        {invite ? "Join your team" : "Set up your firm"}
+      </h1>
+      <p class="mt-1 text-sm text-ink-400">
+        {
+          invite
+            ? "Accept your invite and create a password to join."
+            : "Register a new firm workspace as the admin."
+        }
+      </p>
+
+      <form method="post" action="/api/auth/signup" class="mt-6 space-y-4">
+        <input type="hidden" name="next" value={next} />
+        {invite && <input type="hidden" name="invite" value={invite} />}
+
+        {!invite && (
+          <label class="block">
+            <span class="text-xs font-medium uppercase tracking-wider text-ink-400">
+              Firm / org name
+            </span>
+            <input
+              name="orgName"
+              required
+              placeholder="Blue Heron Wealth"
+              class="mt-1 w-full rounded-lg border border-white/10 bg-ink-900/60 px-3 py-2 text-sm text-white outline-none focus:border-brand-500"
+            />
+          </label>
+        )}
+
+        <label class="block">
+          <span class="text-xs font-medium uppercase tracking-wider text-ink-400">Your name</span>
+          <input
+            name="name"
+            required
+            autocomplete="name"
+            class="mt-1 w-full rounded-lg border border-white/10 bg-ink-900/60 px-3 py-2 text-sm text-white outline-none focus:border-brand-500"
+          />
+        </label>
+
+        <label class="block">
+          <span class="text-xs font-medium uppercase tracking-wider text-ink-400">Email</span>
+          <input
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            class="mt-1 w-full rounded-lg border border-white/10 bg-ink-900/60 px-3 py-2 text-sm text-white outline-none focus:border-brand-500"
+          />
+        </label>
+
+        <label class="block">
+          <span class="text-xs font-medium uppercase tracking-wider text-ink-400">Password</span>
+          <input
+            type="password"
+            name="password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+            class="mt-1 w-full rounded-lg border border-white/10 bg-ink-900/60 px-3 py-2 text-sm text-white outline-none focus:border-brand-500"
+          />
+          <span class="mt-1 block text-[11px] text-ink-500">Min 8 characters.</span>
+        </label>
+
+        <button class="w-full rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-ink-950 shadow-lg shadow-accent-500/20 hover:bg-accent-400">
+          {invite ? "Accept invite & create account" : "Create firm & account"}
+        </button>
+      </form>
+
+      <p class="mt-4 text-center text-xs text-ink-400">
+        Already have an account?{" "}
+        <a href={`/login?next=${encodeURIComponent(next)}`} class="text-brand-300 hover:underline">
+          Sign in
+        </a>
+      </p>
+    </div>
+  </section>
+</Layout>

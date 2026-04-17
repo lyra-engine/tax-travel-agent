@@ -1,0 +1,470 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Fraunces", "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-ink-50: #f6f7fb;
+  --color-ink-100: #eceff7;
+  --color-ink-200: #d6dbe8;
+  --color-ink-300: #aab1c6;
+  --color-ink-400: #737d99;
+  --color-ink-500: #4b5470;
+  --color-ink-600: #303852;
+  --color-ink-700: #1e243a;
+  --color-ink-800: #131829;
+  --color-ink-900: #0a0d1a;
+  --color-ink-950: #05070f;
+
+  --color-brand-300: #86d9ff;
+  --color-brand-400: #3ec0ff;
+  --color-brand-500: #0ea5e9;
+  --color-brand-600: #0284c7;
+  --color-brand-700: #0369a1;
+
+  --color-accent-400: #a7f3d0;
+  --color-accent-500: #34d399;
+  --color-accent-600: #10b981;
+
+  --color-warn-400: #fbbf24;
+  --color-warn-500: #f59e0b;
+
+  --color-danger-400: #fb7185;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+}
+
+html,
+body {
+  background: var(--color-ink-950);
+  color: var(--color-ink-100);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+}
+
+body {
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, rgba(14, 165, 233, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 110% 0%, rgba(52, 211, 153, 0.10), transparent 55%),
+    radial-gradient(600px 400px at 50% 120%, rgba(99, 102, 241, 0.12), transparent 60%);
+}
+
+::selection {
+  background: var(--color-brand-500);
+  color: white;
+}
+
+/* Nice subtle grid for hero */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at top, black 40%, transparent 80%);
+}
+
+.card {
+  background: color-mix(in oklab, var(--color-ink-800) 80%, black 20%);
+  border: 1px solid color-mix(in oklab, var(--color-ink-600) 50%, transparent);
+  border-radius: 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid color-mix(in oklab, var(--color-ink-400) 40%, transparent);
+  background: color-mix(in oklab, var(--color-ink-700) 70%, transparent);
+  color: var(--color-ink-100);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Editorial landing                                                          */
+/* -------------------------------------------------------------------------- */
+
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "ss01" 1, "ss02" 1, "liga" 1, "calt" 1;
+  letter-spacing: -0.01em;
+}
+
+.italic-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: color-mix(in oklab, white 85%, var(--color-brand-300) 15%);
+}
+
+.chapter-marker {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-ink-300) 80%, transparent);
+}
+
+.chapter-marker::before,
+.chapter-marker::after {
+  content: "_";
+  opacity: 0.6;
+  margin: 0 0.15em;
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 80ms; }
+.reveal-delay-2 { transition-delay: 180ms; }
+.reveal-delay-3 { transition-delay: 280ms; }
+.reveal-delay-4 { transition-delay: 380ms; }
+.reveal-delay-5 { transition-delay: 480ms; }
+.reveal-delay-6 { transition-delay: 580ms; }
+
+/* Small animated cues */
+@keyframes scrollDown {
+  0%   { transform: translateY(0);  opacity: 0.3; }
+  40%  { transform: translateY(6px); opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+.animate-scroll-cue { animation: scrollDown 1.8s ease-in-out infinite; }
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.animate-breathe { animation: breathe 2.4s ease-in-out infinite; }
+
+@keyframes dashFlow {
+  to { stroke-dashoffset: -40; }
+}
+.animate-dash { stroke-dasharray: 4 6; animation: dashFlow 2.2s linear infinite; }
+
+@keyframes caret {
+  50% { opacity: 0; }
+}
+.animate-caret { animation: caret 1s step-end infinite; }
+
+@keyframes fadeInSoft {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.token-chip {
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--color-brand-500) 14%, transparent);
+  color: var(--color-brand-300);
+}
+
+/* Hero angle gradient */
+.hero-glow {
+  background:
+    radial-gradient(800px 500px at 30% 30%, rgba(14, 165, 233, 0.20), transparent 60%),
+    radial-gradient(700px 500px at 75% 65%, rgba(52, 211, 153, 0.14), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(99, 102, 241, 0.12), transparent 65%);
+}
+
+.noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+/* Progress rail */
+.progress-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 40;
+  background: transparent;
+  pointer-events: none;
+}
+.progress-rail > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--color-brand-500), var(--color-accent-500));
+  transition: width 120ms linear;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Per-character text reveal                                                  */
+/* -------------------------------------------------------------------------- */
+
+.split-chars { display: inline; }
+
+.split-chars .word {
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: baseline;
+  overflow: visible;
+}
+
+.split-chars .ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 0.6em, 0) rotate(5deg);
+  transition:
+    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 22ms);
+  filter: blur(6px);
+  will-change: opacity, transform, filter;
+}
+
+.split-chars.is-in .ch {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+/* Quieter variant for chapter markers and small labels */
+.split-chars.subtle .ch {
+  transform: translate3d(0, 0.3em, 0);
+  transition-delay: calc(var(--i, 0) * 14ms);
+  filter: blur(2px);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scroll-driven interactivity                                                */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * --sy  : document scroll in px
+ * --sp  : document scroll progress 0 → 1
+ * --p   : per-element progress -1 → 1 (0 when centered in viewport)
+ */
+:root {
+  --sy: 0px;
+  --sp: 0;
+}
+
+.parallax-y-slow {
+  transform: translate3d(0, calc(var(--sy, 0px) * -0.08), 0);
+  will-change: transform;
+}
+.parallax-y-mid {
+  transform: translate3d(0, calc(var(--sy, 0px) * -0.18), 0);
+  will-change: transform;
+}
+.parallax-y-fast {
+  transform: translate3d(0, calc(var(--sy, 0px) * -0.32), 0);
+  will-change: transform;
+}
+.parallax-up-slow {
+  transform: translate3d(0, calc(var(--sy, 0px) * 0.08), 0);
+  will-change: transform;
+}
+
+/* Rotate + drift with scroll */
+.parallax-drift {
+  transform: translate3d(
+      calc(var(--sy, 0px) * 0.06),
+      calc(var(--sy, 0px) * -0.12),
+      0
+    )
+    rotate(calc(var(--sp, 0) * 20deg));
+  will-change: transform;
+}
+
+/* Per-element driven (requires JS to set --p on the element) */
+[data-parallax] {
+  --p: 0;
+}
+
+.p-rise {
+  transform: translate3d(0, calc(var(--p, 0) * -40px), 0);
+}
+.p-rise-lg {
+  transform: translate3d(0, calc(var(--p, 0) * -90px), 0);
+}
+.p-sink {
+  transform: translate3d(0, calc(var(--p, 0) * 60px), 0);
+}
+.p-scale {
+  transform: scale(calc(1 + var(--p, 0) * 0.06));
+  transform-origin: center;
+}
+.p-tilt {
+  transform: rotate(calc(var(--p, 0) * 2deg));
+}
+
+/* SVG flow-chart nodes: spread out slightly as chapter scrolls */
+[data-chart] {
+  --p: 0;
+}
+[data-chart] [data-node="a"] {
+  transform: translate(calc(var(--p, 0) * -18px), 0);
+  transition: transform 120ms linear;
+}
+[data-chart] [data-node="b"] {
+  transform: translate(calc(var(--p, 0) * 14px), calc(var(--p, 0) * -6px));
+  transition: transform 120ms linear;
+}
+[data-chart] [data-node="c"] {
+  transform: translate(calc(var(--p, 0) * 14px), 0);
+  transition: transform 120ms linear;
+}
+[data-chart] [data-node="d"] {
+  transform: translate(calc(var(--p, 0) * 14px), calc(var(--p, 0) * 6px));
+  transition: transform 120ms linear;
+}
+[data-chart] [data-node="e"] {
+  transform: translate(calc(var(--p, 0) * 24px), calc(var(--p, 0) * 10px));
+  transition: transform 120ms linear;
+}
+[data-chart] [data-node="k"] {
+  transform: translate(0, calc(var(--p, 0) * 14px));
+  transition: transform 120ms linear;
+}
+
+/* Floating scroll-depth indicator */
+.depth-hud {
+  position: fixed;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 30;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: color-mix(in oklab, var(--color-ink-300) 70%, transparent);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  mix-blend-mode: screen;
+}
+.depth-hud .dial {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  position: relative;
+  background:
+    conic-gradient(
+      from -90deg,
+      var(--color-brand-400) calc(var(--sp, 0) * 360deg),
+      rgba(255, 255, 255, 0.08) 0
+    );
+  display: grid;
+  place-items: center;
+}
+.depth-hud .dial::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--color-ink-950);
+  border-radius: 999px;
+}
+.depth-hud .dial > span {
+  position: relative;
+  z-index: 1;
+  color: white;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+
+/* Horizon line that glides across the viewport */
+.horizon {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  height: 1px;
+  top: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(52, 211, 153, 0.35) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 100%
+  );
+  transform: translate3d(
+    calc(var(--sy, 0px) * -0.05),
+    calc(var(--sy, 0px) * -0.2),
+    0
+  );
+  pointer-events: none;
+}
+
+/* Orb helper */
+.orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(40px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Reduced-motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .split-chars .ch,
+  .animate-scroll-cue,
+  .animate-breathe,
+  .animate-dash,
+  .animate-caret,
+  .parallax-y-slow,
+  .parallax-y-mid,
+  .parallax-y-fast,
+  .parallax-up-slow,
+  .parallax-drift,
+  .p-rise,
+  .p-rise-lg,
+  .p-sink,
+  .p-scale,
+  .p-tilt,
+  .horizon {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+}
