@@ -1,6 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { readAudit, summarize } from "../lib/advisor/audit";
+import PageHero from "../components/ui/PageHero.astro";
+import PageMap from "../components/ui/PageMap.astro";
+import ScrollScripts from "../components/ui/ScrollScripts.astro";
 
 export const prerender = false;
 
@@ -34,55 +37,48 @@ function fmtDate(iso: string) {
     minute: "2-digit",
   });
 }
+
+const sections = [
+  { id: "ch-summary",  label: "Summary" },
+  { id: "ch-ledger",   label: "Ledger" },
+  { id: "ch-filter",   label: "Filter" },
+];
 ---
 
 <Layout title="Audit log — Fidelis">
-  <section class="mx-auto max-w-7xl px-6 pt-10 pb-20">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <span class="chip w-fit">
-          <span class="h-1.5 w-1.5 rounded-full bg-warn-500"></span>
-          Compliance
-        </span>
-        <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Audit log
-        </h1>
-        <p class="mt-2 max-w-2xl text-ink-300">
-          Every agent turn is logged server-side to
-          <code class="rounded bg-white/5 px-1 font-mono text-xs">data/audit.log.jsonl</code>.
-          Use this for cost tracking, compliance review, and debugging.
-        </p>
-      </div>
-      <form class="flex flex-wrap items-end gap-2" method="get">
-        <label class="flex flex-col gap-1 text-xs text-ink-400">
-          Client name filter
-          <input
-            name="client"
-            value={clientFilter ?? ""}
-            placeholder="Alex Nakamura"
-            class="rounded-lg border border-white/10 bg-ink-900/60 px-3 py-1.5 text-sm text-white outline-none focus:border-brand-500"
-          />
-        </label>
-        <label class="flex flex-col gap-1 text-xs text-ink-400">
-          Limit
-          <input
-            name="limit"
-            type="number"
-            value={limit}
-            min="10"
-            max="500"
-            class="w-24 rounded-lg border border-white/10 bg-ink-900/60 px-3 py-1.5 text-sm text-white outline-none focus:border-brand-500"
-          />
-        </label>
-        <button class="rounded-lg bg-brand-500 px-4 py-1.5 text-sm font-medium text-white shadow-lg shadow-brand-500/20 hover:bg-brand-400">
-          Apply
-        </button>
-        <a href="/audit" class="text-xs text-ink-400 hover:text-white">Clear</a>
-      </form>
+  <PageMap sections={sections} />
+
+  <PageHero
+    kicker="Compliance · Ledger"
+    code="05"
+    title="Every turn,"
+    accent="on the record."
+    lede="The agent is a fiduciary tool. Every prompt, every token, every tool call, every dollar — written to disk, sortable, exportable. Nothing happens off-book."
+    eyebrow="Audit"
+  />
+
+  <!-- ============================================================== -->
+  <!-- Summary                                                           -->
+  <!-- ============================================================== -->
+  <section id="ch-summary" class="mx-auto max-w-7xl px-6 pt-16 pb-10">
+    <div class="section-reveal">
+      <p class="chapter-mark"><em>01</em> Summary</p>
+      <h2
+        class="mt-6 font-display text-[clamp(1.75rem,3.6vw,2.75rem)] font-light leading-tight tracking-tight text-white"
+        data-split-words
+      >
+        The running tally, at a glance.
+      </h2>
+      <p
+        class="mt-4 max-w-2xl text-ink-400"
+        data-split-words="body"
+      >
+        Cumulative metrics across all scoped entries. Anchored in
+        <code class="font-mono text-xs text-ink-300">data/audit.log.jsonl</code>.
+      </p>
     </div>
 
-    <!-- summary cards -->
-    <div class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <div class="section-reveal mt-10 grid gap-0 border-y border-white/5 sm:grid-cols-2 lg:grid-cols-5">
       {
         [
           { label: "Turns", value: stats.turns.toLocaleString(), tone: "ink" },
@@ -94,89 +90,157 @@ function fmtDate(iso: string) {
           },
           { label: "Tool calls", value: stats.toolCallCount.toLocaleString(), tone: "ink" },
           {
-            label: "Total cost (USD)",
+            label: "Total cost",
             value: `$${stats.totalCostUsd.toFixed(4)}`,
             tone: "brand",
           },
-        ].map((card) => (
-          <div class="card p-4">
-            <p class="text-xs uppercase tracking-wider text-ink-500">{card.label}</p>
-            <p
+        ].map((card, i) => (
+          <div
+            class={`relative py-8 ${i !== 0 ? "lg:border-l border-white/5" : ""} px-6`}
+          >
+            <div class="label-xs">{card.label}</div>
+            <div
               class={
                 card.tone === "brand"
-                  ? "mt-1 text-2xl font-semibold tabular-nums text-brand-300"
-                  : "mt-1 text-2xl font-semibold tabular-nums text-white"
+                  ? "mt-3 font-display text-[clamp(1.75rem,3.2vw,2.75rem)] font-light tabular-nums text-brand-300"
+                  : "mt-3 font-display text-[clamp(1.75rem,3.2vw,2.75rem)] font-light tabular-nums text-white"
               }
+              data-num
             >
               {card.value}
-            </p>
+            </div>
           </div>
         ))
       }
     </div>
+  </section>
 
-    <!-- table -->
-    <div class="card mt-8 overflow-hidden p-0">
+  <div class="mx-auto my-6 max-w-7xl px-6">
+    <div class="hairline-x opacity-50"></div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- Filter                                                            -->
+  <!-- ============================================================== -->
+  <section id="ch-filter" class="mx-auto max-w-7xl px-6 pt-8 pb-8">
+    <div class="section-reveal">
+      <p class="chapter-mark"><em>02</em> Filter</p>
+      <h2
+        class="mt-6 font-display text-[clamp(1.5rem,2.4vw,2rem)] font-light leading-tight tracking-tight text-white"
+        data-split-words
+      >
+        Narrow the ledger.
+      </h2>
+    </div>
+    <form class="section-reveal mt-8 flex flex-wrap items-end gap-6" method="get">
+      <label class="flex flex-col gap-2">
+        <span class="label-xs">Client name filter</span>
+        <input
+          name="client"
+          value={clientFilter ?? ""}
+          placeholder="Alex Nakamura"
+          class="field w-72"
+        />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="label-xs">Limit</span>
+        <input
+          name="limit"
+          type="number"
+          value={limit}
+          min="10"
+          max="500"
+          class="field w-28"
+          data-num
+        />
+      </label>
+      <button class="btn-primary">Apply</button>
+      <a href="/audit" class="btn-link">Clear</a>
+    </form>
+  </section>
+
+  <div class="mx-auto my-6 max-w-7xl px-6">
+    <div class="hairline-x opacity-50"></div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- Ledger                                                            -->
+  <!-- ============================================================== -->
+  <section id="ch-ledger" class="mx-auto max-w-7xl px-6 pt-8 pb-28">
+    <div class="section-reveal">
+      <p class="chapter-mark"><em>03</em> Ledger</p>
+      <h2
+        class="mt-6 font-display text-[clamp(1.5rem,2.4vw,2rem)] font-light leading-tight tracking-tight text-white"
+        data-split-words
+      >
+        One row per agent turn.
+      </h2>
+      <p class="mt-3 text-sm text-ink-400">
+        Showing the most recent <span class="font-mono text-ink-300">{entries.length}</span> of <span class="font-mono text-ink-300">{filtered.length}</span> entries.
+      </p>
+    </div>
+
+    <div class="section-reveal mt-10 border border-white/[0.06] bg-black/20">
       {entries.length === 0 ? (
-        <div class="px-6 py-12 text-center text-sm text-ink-400">
-          No audit entries yet. Send a message on{" "}
-          <a href="/agent" class="text-brand-300 hover:underline">/agent</a> and
-          come back.
+        <div class="px-6 py-20 text-center">
+          <p class="kicker">no entries</p>
+          <p class="mt-4 font-display text-xl font-light italic text-ink-200">
+            The ledger is quiet.
+          </p>
+          <p class="mt-2 text-sm text-ink-400">
+            Send a message on <a href="/agent" class="btn-link">the agent</a> and return.
+          </p>
         </div>
       ) : (
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
-            <thead class="border-b border-white/5 bg-white/[0.02] text-left text-xs uppercase tracking-wider text-ink-500">
+            <thead class="border-b border-white/5 text-left">
               <tr>
-                <th class="px-4 py-3 font-medium">When</th>
-                <th class="px-4 py-3 font-medium">User</th>
-                <th class="px-4 py-3 font-medium">Client</th>
-                <th class="px-4 py-3 font-medium">Prompt</th>
-                <th class="px-4 py-3 font-medium">Model</th>
-                <th class="px-4 py-3 font-medium text-right">In</th>
-                <th class="px-4 py-3 font-medium text-right">Out</th>
-                <th class="px-4 py-3 font-medium">Tools</th>
-                <th class="px-4 py-3 font-medium text-right">Time</th>
-                <th class="px-4 py-3 font-medium text-right">Cost</th>
-                <th class="px-4 py-3 font-medium">Status</th>
+                <th class="label-xs px-4 py-4 font-normal">When</th>
+                <th class="label-xs px-4 py-4 font-normal">User</th>
+                <th class="label-xs px-4 py-4 font-normal">Client</th>
+                <th class="label-xs px-4 py-4 font-normal">Prompt</th>
+                <th class="label-xs px-4 py-4 font-normal">Model</th>
+                <th class="label-xs px-4 py-4 text-right font-normal">In</th>
+                <th class="label-xs px-4 py-4 text-right font-normal">Out</th>
+                <th class="label-xs px-4 py-4 font-normal">Tools</th>
+                <th class="label-xs px-4 py-4 text-right font-normal">Time</th>
+                <th class="label-xs px-4 py-4 text-right font-normal">Cost</th>
+                <th class="label-xs px-4 py-4 font-normal">Status</th>
               </tr>
             </thead>
             <tbody>
               {entries.map((e) => (
-                <tr class="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
-                  <td class="whitespace-nowrap px-4 py-3 text-xs text-ink-400">
+                <tr class="border-b border-white/5 last:border-0 transition hover:bg-white/[0.02]">
+                  <td class="whitespace-nowrap px-4 py-4 font-mono text-[11px] text-ink-400">
                     {fmtDate(e.ts)}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-xs text-ink-300">
+                  <td class="whitespace-nowrap px-4 py-4 text-xs text-ink-300">
                     {e.userEmail ?? <span class="text-ink-500">—</span>}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-ink-100">
+                  <td class="whitespace-nowrap px-4 py-4 font-display text-[15px] font-light text-white">
                     {e.clientName ?? <span class="text-ink-500">—</span>}
                   </td>
-                  <td class="max-w-xs truncate px-4 py-3 text-ink-200" title={e.userMessage}>
+                  <td class="max-w-xs truncate px-4 py-4 text-ink-200" title={e.userMessage}>
                     {e.userMessage}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-xs font-mono text-ink-400">
+                  <td class="whitespace-nowrap px-4 py-4 font-mono text-[11px] text-ink-400">
                     {e.model}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-ink-300">
+                  <td class="whitespace-nowrap px-4 py-4 text-right font-mono text-[11px] text-ink-300" data-num>
                     {e.inputTokens.toLocaleString()}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-ink-300">
+                  <td class="whitespace-nowrap px-4 py-4 text-right font-mono text-[11px] text-ink-300" data-num>
                     {e.outputTokens.toLocaleString()}
                   </td>
-                  <td class="px-4 py-3 text-xs">
+                  <td class="px-4 py-4 text-xs">
                     <div class="flex flex-wrap gap-1">
                       {e.toolCalls.length === 0 ? (
                         <span class="text-ink-500">—</span>
                       ) : (
                         e.toolCalls.map((t) => (
                           <span
-                            class={`rounded-full border px-1.5 py-0.5 font-mono text-[10px] ${
-                              t.error
-                                ? "border-danger-500/30 bg-danger-500/10 text-danger-400"
-                                : "border-white/10 bg-white/[0.03] text-ink-300"
-                            }`}
+                            class={`tag ${t.error ? "tag-danger" : ""}`}
                             title={`${t.durationMs}ms${t.error ? " — " + t.error : ""}`}
                           >
                             {t.name}
@@ -185,25 +249,19 @@ function fmtDate(iso: string) {
                       )}
                     </div>
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-ink-400">
+                  <td class="whitespace-nowrap px-4 py-4 text-right font-mono text-[11px] text-ink-400" data-num>
                     {fmtMs(e.durationMs)}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-brand-300">
+                  <td class="whitespace-nowrap px-4 py-4 text-right font-mono text-[11px] text-brand-300" data-num>
                     ${e.estCostUsd.toFixed(5)}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-xs">
+                  <td class="whitespace-nowrap px-4 py-4 text-xs">
                     {e.error ? (
-                      <span class="rounded-full bg-danger-500/15 px-2 py-0.5 text-danger-400">
-                        error
-                      </span>
+                      <span class="tag tag-danger">error</span>
                     ) : e.finishReason === "stop" ? (
-                      <span class="rounded-full bg-accent-500/15 px-2 py-0.5 text-accent-400">
-                        ok
-                      </span>
+                      <span class="tag tag-accent">ok</span>
                     ) : (
-                      <span class="rounded-full bg-warn-500/15 px-2 py-0.5 text-warn-400">
-                        {e.finishReason}
-                      </span>
+                      <span class="tag tag-warn">{e.finishReason}</span>
                     )}
                   </td>
                 </tr>
@@ -214,4 +272,6 @@ function fmtDate(iso: string) {
       )}
     </div>
   </section>
+
+  <ScrollScripts />
 </Layout>

@@ -1,0 +1,55 @@
+---
+export interface Props {
+  kicker: string;          // e.g. "Chapter 02 — What-if planning"
+  code?: string;           // e.g. "02"
+  title: string;           // serif title, plain
+  accent?: string;         // optional italic serif fragment appended after title
+  lede?: string;           // paragraph below the title
+  eyebrow?: string;        // optional preceding label (e.g. "Scenarios")
+}
+
+const { kicker, code, title, accent, lede, eyebrow } = Astro.props;
+---
+
+<section
+  class="relative mx-auto grid max-w-7xl gap-10 px-6 pt-20 pb-16 md:grid-cols-[1fr_auto] md:items-end"
+  data-reveal
+>
+  <div>
+    <p class="chapter-mark" data-split-chars="subtle">
+      {code && <em>{code}</em>}
+      {kicker}
+    </p>
+
+    <h1
+      class="mt-6 font-display text-[clamp(2.25rem,6.2vw,5rem)] font-light leading-[0.98] tracking-[-0.02em] text-white"
+      data-split-words
+    >
+      {title}
+      {accent && (
+        <>
+          <br />
+          <span class="italic-display">{accent}</span>
+        </>
+      )}
+    </h1>
+
+    {lede && (
+      <p
+        class="mt-8 max-w-2xl text-lg leading-relaxed text-ink-300"
+        data-split-words="subtle"
+      >
+        {lede}
+      </p>
+    )}
+  </div>
+
+  {eyebrow && (
+    <div class="hidden text-right font-mono text-[10px] uppercase tracking-[0.3em] text-ink-500 md:block">
+      <span class="block">{eyebrow}</span>
+      <span class="mt-1 block text-ink-600">fidelis · tax intelligence</span>
+    </div>
+  )}
+</section>
+
+<div class="hairline-x opacity-60"></div>

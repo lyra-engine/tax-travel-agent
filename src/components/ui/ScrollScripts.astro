@@ -1,0 +1,185 @@
+---
+// Inline JS injected on inner pages. Keep small, dependency-free.
+// Runs the same "ambient" scroll vocabulary the landing uses:
+//   - data-split-words → wraps each word in a <span class="word">
+//   - data-split-chars → wraps each char in a <span class="ch">
+//   - [data-reveal] / .section-reveal → fade-up on IntersectionObserver
+//   - .page-map → highlights active section
+//   - --sy / --sp CSS variables on <html> for parallax
+---
+
+<script is:inline>
+  (function () {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const root = document.documentElement;
+
+    /* -------------------------------------------------------------- */
+    /* 1 · Per-WORD splitter                                           */
+    /* -------------------------------------------------------------- */
+    function splitWords(el) {
+      if (el.dataset.splitWordsDone === "1") return;
+      el.setAttribute("aria-label", el.textContent.trim());
+      const variant = el.dataset.splitWords;
+      el.classList.add("split-words");
+      if (variant === "subtle") el.classList.add("subtle");
+      if (variant === "body") el.classList.add("body");
+
+      let counter = 0;
+      const walk = (node) => {
+        const kids = Array.from(node.childNodes);
+        for (const k of kids) {
+          if (k.nodeType === Node.TEXT_NODE) {
+            const text = k.textContent || "";
+            if (!text.trim()) continue;
+            const frag = document.createDocumentFragment();
+            for (const token of text.split(/(\s+)/)) {
+              if (token === "") continue;
+              if (/^\s+$/.test(token)) {
+                frag.appendChild(document.createTextNode(token));
+                continue;
+              }
+              const w = document.createElement("span");
+              w.className = "word";
+              w.setAttribute("aria-hidden", "true");
+              w.style.setProperty("--w", String(counter++));
+              w.textContent = token;
+              frag.appendChild(w);
+            }
+            k.parentNode.replaceChild(frag, k);
+          } else if (k.nodeType === Node.ELEMENT_NODE) {
+            if (k.tagName === "BR") continue;
+            walk(k);
+          }
+        }
+      };
+      walk(el);
+      el.dataset.splitWordsDone = "1";
+    }
+
+    /* -------------------------------------------------------------- */
+    /* 2 · Per-CHAR splitter                                           */
+    /* -------------------------------------------------------------- */
+    function splitChars(el) {
+      if (el.dataset.splitCharsDone === "1") return;
+      el.setAttribute("aria-label", el.textContent.trim());
+      const variant = el.dataset.splitChars;
+      el.classList.add("split-chars");
+      if (variant === "subtle") el.classList.add("subtle");
+
+      let counter = 0;
+      const walk = (node) => {
+        const kids = Array.from(node.childNodes);
+        for (const k of kids) {
+          if (k.nodeType === Node.TEXT_NODE) {
+            const text = k.textContent || "";
+            if (!text.trim() && !text.length) continue;
+            const frag = document.createDocumentFragment();
+            for (const token of text.split(/(\s+)/)) {
+              if (token === "") continue;
+              if (/^\s+$/.test(token)) {
+                frag.appendChild(document.createTextNode(token));
+                continue;
+              }
+              const w = document.createElement("span");
+              w.className = "word";
+              w.setAttribute("aria-hidden", "true");
+              for (const c of Array.from(token)) {
+                const s = document.createElement("span");
+                s.className = "ch";
+                s.style.setProperty("--i", String(counter++));
+                s.textContent = c;
+                w.appendChild(s);
+              }
+              frag.appendChild(w);
+            }
+            k.parentNode.replaceChild(frag, k);
+          } else if (k.nodeType === Node.ELEMENT_NODE) {
+            if (k.tagName === "BR") continue;
+            walk(k);
+          }
+        }
+      };
+      walk(el);
+      el.dataset.splitCharsDone = "1";
+    }
+
+    if (!reduce) {
+      document.querySelectorAll("[data-split-words]").forEach(splitWords);
+      document.querySelectorAll("[data-split-chars]").forEach(splitChars);
+    }
+
+    /* -------------------------------------------------------------- */
+    /* 3 · Reveal on enter                                             */
+    /* -------------------------------------------------------------- */
+    const revealTargets = document.querySelectorAll(
+      ".section-reveal, [data-reveal], [data-split-words], [data-split-chars]",
+    );
+    if (!reduce && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+      );
+      revealTargets.forEach((el) => io.observe(el));
+    } else {
+      revealTargets.forEach((el) => el.classList.add("is-in"));
+    }
+
+    /* -------------------------------------------------------------- */
+    /* 4 · Scroll vars (--sy, --sp) + page-map sync                    */
+    /* -------------------------------------------------------------- */
+    const mapLinks = Array.from(document.querySelectorAll(".page-map a"));
+    const sections = mapLinks
+      .map((a) => ({ a, el: document.getElementById(a.dataset.target || "") }))
+      .filter((s) => s.el);
+
+    let scheduled = false;
+    const tick = () => {
+      scheduled = false;
+      const y = window.scrollY;
+      const h = root.scrollHeight - root.clientHeight;
+      const sp = h > 0 ? y / h : 0;
+      root.style.setProperty("--sy", y + "px");
+      root.style.setProperty("--sp", sp.toFixed(4));
+
+      // Active section: topmost whose top is above the 38% viewport line
+      const trigger = window.innerHeight * 0.38;
+      let active = -1;
+      for (let i = 0; i < sections.length; i++) {
+        const r = sections[i].el.getBoundingClientRect();
+        if (r.top - trigger <= 0) active = i;
+      }
+      sections.forEach((s, i) => {
+        s.a.classList.toggle("is-active", i === active);
+      });
+    };
+
+    const onScroll = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(tick);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+
+    /* -------------------------------------------------------------- */
+    /* 5 · Smooth-scroll for map clicks                                */
+    /* -------------------------------------------------------------- */
+    mapLinks.forEach((a) => {
+      a.addEventListener("click", (e) => {
+        const id = a.dataset.target;
+        const t = id && document.getElementById(id);
+        if (!t) return;
+        e.preventDefault();
+        t.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  })();
+</script>

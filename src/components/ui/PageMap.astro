@@ -1,0 +1,24 @@
+---
+// PageMap — fixed right-edge navigation rail showing scroll progress
+// through a page's named sections. Targets elements by id.
+export interface Section {
+  id: string;
+  label: string;
+}
+export interface Props {
+  sections: Section[];
+}
+
+const { sections } = Astro.props;
+---
+
+<nav class="page-map" aria-label="Page sections">
+  {sections.map((s, i) => (
+    <a href={`#${s.id}`} data-target={s.id}>
+      <span class="pm-idx">{String(i + 1).padStart(2, "0")}</span>
+      <span class="pm-dot" aria-hidden="true"></span>
+      <span class="pm-dash" aria-hidden="true"></span>
+      <span class="pm-label">{s.label}</span>
+    </a>
+  ))}
+</nav>

@@ -2,27 +2,200 @@
 export const prerender = true;
 import Layout from "../layouts/Layout.astro";
 import ResidencyTracker from "../components/tracker/ResidencyTracker.tsx";
+import PageHero from "../components/ui/PageHero.astro";
+import PageMap from "../components/ui/PageMap.astro";
+import ScrollScripts from "../components/ui/ScrollScripts.astro";
+
+const sections = [
+  { id: "ch-premise",    label: "Premise" },
+  { id: "ch-journal",    label: "Journal" },
+  { id: "ch-thresholds", label: "Thresholds" },
+  { id: "ch-verdict",    label: "Verdict" },
+];
 ---
 
-<Layout title="Residency Day Tracker — Travel Tax Assistant">
-  <section class="mx-auto max-w-6xl px-6 pt-12 pb-20">
-    <div class="flex flex-col gap-2">
-      <span class="chip w-fit">
-        <span class="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
-        Tracker
-      </span>
-      <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        Your residency day tracker
-      </h1>
-      <p class="max-w-2xl text-ink-300">
-        Add every trip you've taken (or plan to take) in the current tax year
-        and the two years before it. We'll do the day math, flag threshold
-        risks, and run the US Substantial Presence Test for you.
+<Layout title="Residency Day Tracker — Fidelis">
+  <PageMap sections={sections} />
+
+  <PageHero
+    kicker="Residency · SPT"
+    code="04"
+    title="Every day,"
+    accent="accounted for."
+    lede="Record the trips. Fidelis does the day math, flags threshold risk, and runs the US Substantial Presence Test against the three-year window."
+    eyebrow="Tracker"
+  />
+
+  <!-- ============================================================== -->
+  <!-- Premise                                                           -->
+  <!-- ============================================================== -->
+  <section id="ch-premise" class="mx-auto max-w-7xl px-6 pt-16 pb-8">
+    <div class="grid gap-10 md:grid-cols-[1.4fr_1fr]">
+      <div class="section-reveal">
+        <p class="chapter-mark"><em>01</em> Premise</p>
+        <h2
+          class="mt-6 font-display text-[clamp(1.75rem,3.6vw,2.75rem)] font-light leading-tight tracking-tight text-white"
+          data-split-words
+        >
+          Residency is a verdict written in calendar days.
+        </h2>
+        <p
+          class="mt-5 max-w-xl text-base leading-relaxed text-ink-300"
+          data-split-words="body"
+        >
+          The IRS Substantial Presence Test counts this year in full, last year
+          at one-third, and the year before at one-sixth. Thirty-one minimum,
+          one-eighty-three in aggregate. Two missed weeks swing the verdict.
+        </p>
+      </div>
+      <aside class="section-reveal space-y-4 border-l border-white/5 pl-6 text-sm text-ink-300 md:pl-10">
+        <div>
+          <span class="label-xs">Three-year window</span>
+          <p class="mt-2 text-ink-400">
+            We hold the current tax year plus the prior two, weighted per the
+            IRS formula. No eyeballing required.
+          </p>
+        </div>
+        <div>
+          <span class="label-xs">Treaty aware</span>
+          <p class="mt-2 text-ink-400">
+            Tie-breaker rules live inside the agent. The tracker feeds it clean
+            day counts so the conversation can start with facts.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="mx-auto my-6 max-w-7xl px-6">
+    <div class="hairline-x opacity-50"></div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- Journal                                                           -->
+  <!-- ============================================================== -->
+  <section id="ch-journal" class="mx-auto max-w-7xl px-6 pt-6 pb-12">
+    <div class="section-reveal">
+      <p class="chapter-mark"><em>02</em> Journal</p>
+      <h2
+        class="mt-6 font-display text-[clamp(1.75rem,3.6vw,2.75rem)] font-light leading-tight tracking-tight text-white"
+        data-split-words
+      >
+        Log the trips, let the math resolve itself.
+      </h2>
+      <p
+        class="mt-4 max-w-2xl text-ink-400"
+        data-split-words="body"
+      >
+        Add every entry and exit. Fidelis bucketises the days per jurisdiction,
+        per tax year, per rolling window.
       </p>
     </div>
 
-    <div class="mt-10">
+    <div class="section-reveal mt-10">
       <ResidencyTracker client:load />
     </div>
   </section>
+
+  <div class="mx-auto my-10 max-w-7xl px-6">
+    <div class="hairline-x opacity-50"></div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- Thresholds                                                        -->
+  <!-- ============================================================== -->
+  <section id="ch-thresholds" class="mx-auto max-w-7xl px-6 py-16">
+    <div class="grid gap-10 md:grid-cols-3">
+      <div class="section-reveal md:col-span-1">
+        <p class="chapter-mark"><em>03</em> Thresholds</p>
+        <h2
+          class="mt-6 font-display text-[clamp(1.5rem,2.8vw,2.25rem)] font-light leading-tight tracking-tight text-white"
+          data-split-words
+        >
+          The lines we watch.
+        </h2>
+      </div>
+      <div class="section-reveal md:col-span-2 space-y-2 text-ink-300">
+        <ul class="space-y-0">
+          <li class="hairline-row flex items-start justify-between gap-4 py-4">
+            <div>
+              <div class="label-xs">US · Substantial Presence</div>
+              <div class="mt-1 text-sm text-ink-400">31 current-year &amp; 183 weighted</div>
+            </div>
+            <span class="tag tag-warn">IRS</span>
+          </li>
+          <li class="hairline-row flex items-start justify-between gap-4 py-4">
+            <div>
+              <div class="label-xs">US state · Statutory residency</div>
+              <div class="mt-1 text-sm text-ink-400">~183 day rule in NY, CA, etc.</div>
+            </div>
+            <span class="tag">state</span>
+          </li>
+          <li class="hairline-row flex items-start justify-between gap-4 py-4">
+            <div>
+              <div class="label-xs">UK · Statutory Residence Test</div>
+              <div class="mt-1 text-sm text-ink-400">Automatic &amp; sufficient ties thresholds</div>
+            </div>
+            <span class="tag">HMRC</span>
+          </li>
+          <li class="hairline-row flex items-start justify-between gap-4 py-4">
+            <div>
+              <div class="label-xs">Portugal · NHR / IFICI</div>
+              <div class="mt-1 text-sm text-ink-400">183 days or permanent residence</div>
+            </div>
+            <span class="tag">EU</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="mx-auto my-10 max-w-7xl px-6">
+    <div class="hairline-x opacity-50"></div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- Verdict                                                           -->
+  <!-- ============================================================== -->
+  <section id="ch-verdict" class="mx-auto max-w-7xl px-6 pb-28 pt-10">
+    <div class="grid gap-10 md:grid-cols-[1fr_1fr]">
+      <div class="section-reveal">
+        <p class="chapter-mark"><em>04</em> Verdict</p>
+        <h2
+          class="mt-6 font-display text-[clamp(1.75rem,3.6vw,2.75rem)] font-light leading-tight tracking-tight text-white"
+          data-split-words
+        >
+          Hand the agent a clean slate.
+        </h2>
+        <p
+          class="mt-5 max-w-lg text-ink-300"
+          data-split-words="body"
+        >
+          The agent will lean on these counts when running treaty analysis,
+          NHR applicability, or SPT exemptions. Accuracy at the journal level
+          translates directly to the quality of every downstream answer.
+        </p>
+      </div>
+      <div class="section-reveal flex flex-col gap-3">
+        <a href="/agent" class="hairline-row flex items-center justify-between gap-4 px-0 py-4">
+          <div>
+            <div class="label-xs">01</div>
+            <div class="mt-1 font-display text-xl font-light text-white">Ask the agent</div>
+            <div class="mt-1 text-sm text-ink-400">Run a treaty / SPT question against the journal.</div>
+          </div>
+          <span class="font-mono text-ink-400">→</span>
+        </a>
+        <a href="/scenarios" class="hairline-row flex items-center justify-between gap-4 px-0 py-4">
+          <div>
+            <div class="label-xs">02</div>
+            <div class="mt-1 font-display text-xl font-light text-white">Model the move</div>
+            <div class="mt-1 text-sm text-ink-400">Compare staying vs. relocating with real numbers.</div>
+          </div>
+          <span class="font-mono text-ink-400">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <ScrollScripts />
 </Layout>
