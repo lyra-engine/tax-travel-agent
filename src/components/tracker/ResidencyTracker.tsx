@@ -7,6 +7,8 @@ import {
   saveTrips,
   uid,
 } from "../../lib/storage";
+import { loadActiveClientId, loadClients } from "../../lib/advisor/store";
+import { copyWorkspaceJournalToClient } from "../../lib/advisor/tracker-sync";
 import { JURISDICTIONS, getJurisdiction } from "../../lib/jurisdictions";
 import {
   fmtRange,
@@ -35,6 +37,7 @@ export default function ResidencyTracker() {
     dayCountMode: "inclusive",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [agentTargetLabel, setAgentTargetLabel] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -42,6 +45,18 @@ export default function ResidencyTracker() {
     setSettings(loadSettings());
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const refreshAgentTarget = () => {
+      const id = loadActiveClientId();
+      const c = id ? loadClients().find((x) => x.id === id) : undefined;
+      setAgentTargetLabel(c ? c.name : null);
+    };
+    refreshAgentTarget();
+    window.addEventListener("focus", refreshAgentTarget);
+    return () => window.removeEventListener("focus", refreshAgentTarget);
+  }, [hydrated]);
 
   useEffect(() => {
     if (hydrated) saveTrips(trips);
@@ -174,6 +189,33 @@ export default function ResidencyTracker() {
     if (confirm("Delete ALL trips? This cannot be undone.")) setTrips([]);
   };
 
+  const pushJournalToAgentClient = () => {
+    const id = loadActiveClientId();
+    if (!id) {
+      alert("Open /agent and select a client, then try again (or use Journal → client from the agent header).");
+      return;
+    }
+    const client = loadClients().find((c) => c.id === id);
+    if (!client) {
+      alert("Open /agent and select a client, then try again.");
+      return;
+    }
+    const fromN = trips.length;
+    const existingN = client.trips?.length ?? 0;
+    if (existingN > 0) {
+      const ok = confirm(
+        `Replace ${existingN} trip(s) on ${client.name} with ${fromN} from this journal?`,
+      );
+      if (!ok) return;
+    }
+    const r = copyWorkspaceJournalToClient(id);
+    if (!r.ok) {
+      alert(r.message);
+      return;
+    }
+    alert(`Copied ${r.tripCount} trip(s) to ${r.clientName}. Continue in /agent — residency tools will use that list.`);
+  };
+
   if (!hydrated) {
     return (
       <div className="card p-8 text-center text-ink-400">
@@ -226,6 +268,35 @@ export default function ResidencyTracker() {
             Most tax authorities count any part of a day, so <b>Count all days</b>
             is the safe default.
           </p>
+        </div>
+
+        <div className="card p-5">
+          <h2 className="text-sm font-medium text-ink-300">Agent workspace</h2>
+          <p className="mt-2 text-xs leading-relaxed text-ink-400">
+            Push this journal into the client currently selected on{" "}
+            <a href="/agent" className="text-brand-400 hover:text-brand-300">
+              /agent
+            </a>{" "}
+            so <span className="font-mono text-[11px] text-ink-300">residency_check</span> and
+            the tax agent use the same trips.
+          </p>
+          <p className="mt-2 text-xs text-ink-500">
+            {agentTargetLabel ? (
+              <>
+                Selected client: <span className="text-ink-300">{agentTargetLabel}</span>
+              </>
+            ) : (
+              <>No client selected — pick one in /agent first.</>
+            )}
+          </p>
+          <button
+            type="button"
+            onClick={pushJournalToAgentClient}
+            disabled={trips.length === 0}
+            className="mt-3 w-full rounded-lg border border-white/10 bg-ink-900/60 px-3 py-2.5 text-sm text-white outline-none transition hover:border-brand-500/50 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Copy {trips.length} trip{trips.length === 1 ? "" : "s"} to agent client
+          </button>
         </div>
 
         <div className="card p-5">

@@ -10,6 +10,12 @@ It ships as a base agent you can drop into an advisor platform, plus a set
 of advisor-facing surfaces (scenarios, document intake, PDF memos, audit log)
 built on the same tools.
 
+**Monolith, not micro-frontends:** landing, agent, residency tracker, scenarios,
+and APIs all live in this single Astro app. You get **one Git repository** and
+**one deployable unit** (one Vercel project or one Node process). The tracker
+and agent share the same trip data via *Journal → client* on `/agent` or the
+tracker’s *Agent workspace* card.
+
 ---
 
 ## Product surfaces
@@ -73,6 +79,22 @@ goes to `./data/fidelis.sqlite`.
 ---
 
 ## Deploy
+
+### GitHub + Vercel (one production site)
+
+1. Push this repo to GitHub (you already have a single codebase; no merging of
+   separate repos required).
+2. In [Vercel](https://vercel.com/new), **Import** that repository. Vercel
+   detects Astro; leave the default build command (`astro build`) and output.
+3. Add environment variables (see below), then deploy. Every route (`/`,
+   `/agent`, `/tracker`, `/api/*`, …) is served from **one** project URL.
+
+CLI alternative (link the local folder to a Vercel project, then deploy):
+
+```sh
+vercel link
+vercel --prod
+```
 
 ### Vercel (recommended for showcase)
 

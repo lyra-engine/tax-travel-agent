@@ -13,6 +13,7 @@ import {
   saveConversations,
   seedSampleClient,
 } from "../../lib/advisor/store";
+import { copyWorkspaceJournalToClient, workspaceJournalTripCount } from "../../lib/advisor/tracker-sync";
 import { uid } from "../../lib/storage";
 import { SUGGESTED_PROMPTS } from "../../lib/advisor/agent";
 import ConversationList from "./ConversationList";
@@ -35,6 +36,7 @@ export default function AdvisorAgent() {
 
   const [streaming, setStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
+  const [syncFlash, setSyncFlash] = useState<string | null>(null);
   const [pendingNotes, setPendingNotes] = useState<Array<{ id: string; note: string; tags?: string[] }>>([]);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -292,6 +294,26 @@ export default function AdvisorAgent() {
   const dismissNote = (id: string) =>
     setPendingNotes((ns) => ns.filter((n) => n.id !== id));
 
+  const syncJournalFromTracker = useCallback(() => {
+    if (!activeClient) return;
+    const fromN = workspaceJournalTripCount();
+    const existingN = activeClient.trips?.length ?? 0;
+    if (existingN > 0) {
+      const ok = confirm(
+        `Replace ${existingN} trip(s) on ${activeClient.name} with ${fromN} from the residency journal?`,
+      );
+      if (!ok) return;
+    }
+    const r = copyWorkspaceJournalToClient(activeClient.id);
+    if (!r.ok) {
+      alert(r.message);
+      return;
+    }
+    setClients(loadClients());
+    setSyncFlash(`Copied ${r.tripCount} trip(s) from /tracker → ${r.clientName}.`);
+    window.setTimeout(() => setSyncFlash(null), 5000);
+  }, [activeClient]);
+
   const upsertClient = (c: Client) => {
     setClients((list) => {
       const exists = list.some((x) => x.id === c.id);
@@ -502,6 +524,7 @@ export default function AdvisorAgent() {
                 }
               }}
               onExport={exportMarkdown}
+              onSyncJournal={syncJournalFromTracker}
               onOpenMemo={
                 activeConvo && activeConvo.messages.length > 0
                   ? () => window.open(`/memo/${activeConvo.id}`, "_blank")
@@ -509,6 +532,11 @@ export default function AdvisorAgent() {
               }
               canExport={!!activeConvo && activeConvo.messages.length > 0}
             />
+            {syncFlash && (
+              <p className="border-b border-white/[0.04] bg-brand-500/[0.06] px-6 py-2 text-xs text-brand-200">
+                {syncFlash}
+              </p>
+            )}
 
             <div className="flex-1 overflow-y-auto">
               {(!activeConvo || activeConvo.messages.length === 0) ? (

@@ -7,6 +7,8 @@ type Props = {
   onSelect: (id: string) => void;
   onEdit: () => void;
   onExport: () => void;
+  /** Copy /tracker journal trips into the active client (replaces client trip list). */
+  onSyncJournal?: () => void;
   onOpenMemo?: () => void;
   canExport: boolean;
 };
@@ -17,6 +19,7 @@ export default function ClientHeader({
   onSelect,
   onEdit,
   onExport,
+  onSyncJournal,
   onOpenMemo,
   canExport,
 }: Props) {
@@ -52,6 +55,16 @@ export default function ClientHeader({
           {activeClient && (
             <button onClick={onEdit} className="btn-link">
               Edit profile
+            </button>
+          )}
+          {activeClient && onSyncJournal && (
+            <button
+              type="button"
+              onClick={onSyncJournal}
+              className="btn-link"
+              title="Replace this client’s trip list with the global residency journal from /tracker"
+            >
+              Journal → client
             </button>
           )}
           <button
