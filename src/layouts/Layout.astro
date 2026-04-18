@@ -22,11 +22,13 @@ const isActive = (href: string) => {
 };
 
 const navItems: Array<{ href: string; label: string; code: string }> = [
-  { href: "/agent",     label: "Agent",     code: "01" },
-  { href: "/scenarios", label: "Scenarios", code: "02" },
-  { href: "/intake",    label: "Intake",    code: "03" },
-  { href: "/tracker",   label: "Tracker",   code: "04" },
-  { href: "/audit",     label: "Audit",     code: "05" },
+  { href: "/marea.html", label: "Marea", code: "00" },
+  { href: "/fidelis", label: "Fidelis", code: "01" },
+  { href: "/agent", label: "Agent", code: "02" },
+  { href: "/scenarios", label: "Scenarios", code: "03" },
+  { href: "/intake", label: "Intake", code: "04" },
+  { href: "/tracker", label: "Tracker", code: "05" },
+  { href: "/audit", label: "Audit", code: "06" },
 ];
 ---
 
@@ -53,7 +55,7 @@ const navItems: Array<{ href: string; label: string; code: string }> = [
     <header class="relative z-20">
       <div class="mx-auto flex max-w-7xl items-stretch justify-between gap-8 px-6">
         <!-- Brand -->
-        <a href="/" class="group flex items-center gap-3 py-5" aria-label="Fidelis home">
+        <a href="/marea.html" class="group flex items-center gap-3 py-5" aria-label="Marea — home">
           <span class="relative grid h-8 w-8 place-items-center">
             <span class="absolute inset-0 rounded-[2px] border border-white/12 transition group-hover:border-white/28"></span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-white/80 group-hover:text-white">
@@ -87,7 +89,7 @@ const navItems: Array<{ href: string; label: string; code: string }> = [
               href="/team"
               class:list={["nav-link", isActive("/team") && "is-active"]}
             >
-              <span class="mr-2 text-ink-500/70">06</span>Team
+              <span class="mr-2 text-ink-500/70">07</span>Team
             </a>
           )}
         </nav>

@@ -10,11 +10,16 @@ It ships as a base agent you can drop into an advisor platform, plus a set
 of advisor-facing surfaces (scenarios, document intake, PDF memos, audit log)
 built on the same tools.
 
-**Monolith, not micro-frontends:** landing, agent, residency tracker, scenarios,
-and APIs all live in this single Astro app. You get **one Git repository** and
-**one deployable unit** (one Vercel project or one Node process). The tracker
-and agent share the same trip data via *Journal → client* on `/agent` or the
+**Monolith, not micro-frontends:** Marea (Herdia × Lyra hospitality surface),
+Fidelis (tax intelligence), agent, residency tracker, scenarios, and APIs all
+ship from this Astro app — **one repository** and **one deployable unit**. The
+tracker and agent share trip data via *Journal → client* on `/agent` or the
 tracker’s *Agent workspace* card.
+
+This repo is the canonical place to merge **`Josekpapa/herdia-lyra`** (formerly
+a static `index.html` only): Marea is served from **`/marea.html`**, Fidelis
+editorial from **`/fidelis`**, and **`/`** redirects to Marea. Connect Vercel
+to this repository and use **`npm run build`** (not a bare `astro` CLI).
 
 ---
 
@@ -22,7 +27,9 @@ tracker’s *Agent workspace* card.
 
 | Route            | What it is                                                                             |
 | ---------------- | -------------------------------------------------------------------------------------- |
-| `/`              | Scroll-driven editorial landing (Chapters 00 – 05).                                    |
+| `/`              | Redirects to **`/marea.html`** (Herdia × Lyra · Marea).                                |
+| `/marea.html`    | Full-screen Marea experience (travel / partner / onboarding). Portal CTAs: tax → `/agent`, travel partner → `/tracker` (interim). |
+| `/fidelis`       | Fidelis editorial landing (chapters, tools, motion).                                   |
 | `/agent`         | The AI workspace: per-client chat, tool calls, citations, usage, drafts.               |
 | `/scenarios`     | Side-by-side tax scenarios (Roth vs. no-Roth, NY vs. FL, S-corp vs. Sole-prop).        |
 | `/intake`        | Document intake — W-2 / 1099 / 1040 vision parse, diff, and merge into client profile. |

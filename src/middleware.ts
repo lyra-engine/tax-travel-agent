@@ -3,6 +3,8 @@ import { SESSION_COOKIE, authEnabled, readSession } from "./lib/auth/auth";
 
 const PUBLIC_PATHS = new Set([
   "/",
+  "/marea.html",
+  "/fidelis",
   "/login",
   "/signup",
   "/tracker",
