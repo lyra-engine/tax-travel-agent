@@ -54,6 +54,8 @@ tracker’s *Agent workspace* card.
 
 ## Local dev
 
+Requires **Node.js 22.12+** (Astro 6; `engines` in `package.json` matches this).
+
 ```sh
 npm install
 cp .env.example .env
@@ -86,6 +88,8 @@ goes to `./data/fidelis.sqlite`.
    separate repos required).
 2. In [Vercel](https://vercel.com/new), **Import** that repository. Vercel
    detects Astro; leave the default build command (`astro build`) and output.
+   The `engines.node` field in `package.json` selects **Node 22** on Vercel so
+   it matches Astro’s requirement.
 3. Add environment variables (see below), then deploy. Every route (`/`,
    `/agent`, `/tracker`, `/api/*`, …) is served from **one** project URL.
 
